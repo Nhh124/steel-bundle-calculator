@@ -284,11 +284,17 @@ function copyCurrentResult() {
     totalBars = (fullBundles * bundleSize) + oddBars;
   }
 
-  const totalWeightKg = Math.round(totalBars * baremPerBar);
-  const resultText = `[CÂN XE] ${supplier.name} ${currentDiameter} (${gradeText})\n• Tổng cây: ${totalBars.toLocaleString()} cây\n• Quy đổi: ${fullBundles} bó + ${oddBars}\n• Khối lượng barem: ${totalWeightKg.toLocaleString()} kg (~${(totalWeightKg/1000).toFixed(3)} tấn)`;
+  let resultText = "";
+  if (totalBars === 0) {
+    resultText = "0 bó + 0";
+  } else if (oddBars === 0) {
+    resultText = `${fullBundles} bó`;
+  } else {
+    resultText = `${fullBundles} bó + ${oddBars}`;
+  }
 
   navigator.clipboard.writeText(resultText).then(() => {
-    showToast("Đã sao chép kết quả vào bộ nhớ tạm!");
+    showToast(`Đã sao chép: "${resultText}"`);
   }).catch(() => {
     showToast("Không thể sao chép tự động, vui lòng copy thủ công!");
   });
