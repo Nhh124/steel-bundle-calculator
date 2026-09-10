@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phần Mềm Tính Bó & Cây Lẻ Thép Xây Dựng</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏗️</text></svg>">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header>
+      <div class="header-badge">Công Cụ Cân Xe & Quản Lý Kho Bãi</div>
+      <h1>Tính Số Bó & Cây Lẻ Thép</h1>
+      <p>Quy chuẩn theo barem đóng gói 6 nhà máy thép: Hòa Phát, VAS, Pomina, Miền Nam, Tung Ho, Vina Kyoei</p>
+    </header>
+
+    <!-- Step 1: Chọn Nhà cung cấp -->
+    <div class="card">
+      <div class="card-title">
+        <span class="step-num">1</span>
+        <span>Chọn Nhà Cung Cấp / Nhà Sản Xuất</span>
+      </div>
+      <div class="suppliers-grid" id="supplier-radios">
+        <!-- Radio buttons rendered by app.js -->
+      </div>
+    </div>
+
+    <!-- Step 2: Chọn Chủng loại & Đường kính -->
+    <div class="card">
+      <div class="card-title">
+        <span class="step-num">2</span>
+        <span>Chọn Chủng Loại (Đường Kính Thép Cây 11.7m)</span>
+      </div>
+      <div class="diameters-container" id="diameter-btns">
+        <!-- Diameter buttons rendered by app.js -->
+      </div>
+
+      <!-- Mác thép (nếu nhà máy có barem riêng giữa CB3 và CB4/CB5) -->
+      <div id="grade-selector-container" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-color); display: none;">
+        <span class="form-label">Mác thép (Cấp độ bền):</span>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.9rem;">
+            <input type="radio" name="steel-grade" value="cb4_5" checked>
+            <span id="label-grade-cb4">CB4 / CB5</span>
+          </label>
+          <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.9rem;">
+            <input type="radio" name="steel-grade" value="cb3">
+            <span id="label-grade-cb3">CB3 / SD295 / GR40</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Nhập liệu & Tính toán -->
+    <div class="card">
+      <div class="card-title">
+        <span class="step-num">3</span>
+        <span>Nhập Dữ Liệu & Quy Đổi</span>
+      </div>
+
+      <!-- Chuyển đổi chiều tính toán -->
+      <div class="mode-tabs">
+        <button type="button" class="mode-tab active" data-mode="bars_to_bundle">
+          📐 Nhập Số Cây ➔ Ra Số Bó + Cây Lẻ
+        </button>
+        <button type="button" class="mode-tab" data-mode="bundle_to_bars">
+          🔄 Nhập Số Bó & Cây Lẻ ➔ Ra Tổng Số Cây
+        </button>
+      </div>
+
+      <!-- Banner thông số quy cách hiện tại -->
+      <div class="spec-info-banner" id="spec-banner-text">
+        Đang tải thông số quy cách...
+      </div>
+
+      <!-- Form nhập 1: Từ Số Cây ra Bó -->
+      <div id="section-bars-to-bundle">
+        <div class="form-group">
+          <label class="form-label" for="input-bars">Nhập Tổng Số Cây Thép:</label>
+          <input type="number" id="input-bars" class="input-number" placeholder="Ví dụ: 1000" min="0" value="1000" autofocus>
+          <div class="quick-number-btns">
+            <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center; margin-right: 4px;">Cộng nhanh:</span>
+            <button type="button" class="quick-btn" data-val="50">+50</button>
+            <button type="button" class="quick-btn" data-val="100">+100</button>
+            <button type="button" class="quick-btn" data-val="200">+200</button>
+            <button type="button" class="quick-btn" data-val="500">+500</button>
+            <button type="button" class="quick-btn" data-val="1000">+1000</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form nhập 2: Từ Bó + Lẻ ra Số Cây -->
+      <div id="section-bundle-to-bars" style="display: none;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label" for="input-bundles">Số Bó Chẵn:</label>
+            <input type="number" id="input-bundles" class="input-number" placeholder="0" min="0" value="2">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="input-odd-bars">Số Cây Lẻ:</label>
+            <input type="number" id="input-odd-bars" class="input-number" placeholder="0" min="0" value="120">
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Card -->
+      <div class="result-box">
+        <div class="result-main">
+          <div>
+            <div class="result-title">Kết Quả Quy Đổi</div>
+            <div class="result-highlight" id="result-highlight">0 bó + 0</div>
+          </div>
+          <button type="button" class="btn btn-primary" id="btn-copy-result" title="Sao chép kết quả để gửi Zalo">
+            📋 Sao Chép Kết Quả
+          </button>
+        </div>
+
+        <div class="result-grid">
+          <div class="result-item">
+            <div class="result-item-label">Số Cây Bó Chẵn</div>
+            <div class="result-item-val" id="res-full-bundles-val">0 bó</div>
+            <div class="result-item-sub">Đóng đai nguyên bó</div>
+          </div>
+          <div class="result-item">
+            <div class="result-item-label">Số Cây Lẻ Rời</div>
+            <div class="result-item-val" id="res-odd-bars-val">0 cây</div>
+            <div class="result-item-sub">Cây lẻ ngoài bó</div>
+          </div>
+          <div class="result-item">
+            <div class="result-item-label">Tổng Số Cây</div>
+            <div class="result-item-val" id="res-total-bars-val">0 cây</div>
+            <div class="result-item-sub">Toàn bộ lô thép</div>
+          </div>
+          <div class="result-item">
+            <div class="result-item-label">Khối Lượng Ước Tính (Barem)</div>
+            <div class="result-item-val" id="res-est-weight-val">0 kg</div>
+            <div class="result-item-sub">Khối lượng lý thuyết</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thêm vào chuyến xe cân -->
+      <div class="btn-group">
+        <button type="button" class="btn btn-success" id="btn-add-to-vehicle" style="flex: 1;">
+          ➕ Thêm Vào Danh Sách Phiếu Cân Xe
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 4: Bảng Tổng Hợp Chuyến Xe / Nhiều Loại Thép -->
+    <div class="card">
+      <div class="card-title" style="justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="step-num">4</span>
+          <span>Bảng Tổng Hợp Chuyến Xe (<span id="vehicle-total-count">0</span> mặt hàng)</span>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-secondary" id="btn-copy-vehicle" style="padding: 6px 12px; font-size: 0.8rem;">
+            📋 Copy Cả Xe (Gửi Zalo)
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-clear-vehicle" style="padding: 6px 12px; font-size: 0.8rem; color: #b91c1c;">
+            🗑️ Xóa Hết
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="vehicle-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Mặt Hàng</th>
+              <th>Tổng Cây</th>
+              <th>Số Bó Chẵn</th>
+              <th>Cây Lẻ</th>
+              <th>KL Barem</th>
+              <th>Thao Tác</th>
+            </tr>
+          </thead>
+          <tbody id="vehicle-table-body">
+            <tr>
+              <td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">
+                Chưa có mặt hàng nào. Nhập số cây ở trên và bấm "Thêm Vào Danh Sách Phiếu Cân Xe".
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr id="vehicle-foot-row" style="display: none;">
+              <td colspan="2">TỔNG CỘNG XE:</td>
+              <td id="foot-total-bars">0</td>
+              <td id="foot-total-bundles">0 bó</td>
+              <td id="foot-total-odd">0 cây</td>
+              <td id="foot-total-weight">0 kg</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Thông tin Bảng tra tham chiếu -->
+    <div class="card" style="font-size: 0.85rem; color: var(--text-muted);">
+      <div class="card-title" style="font-size: 0.95rem;">
+        <span>📖 Bảng Tra Quy Cách Cây/Bó Các Nhà Máy (Thép 11.7m)</span>
+      </div>
+      <div class="table-responsive">
+        <table class="vehicle-table" style="font-size: 0.8rem; text-align: center;">
+          <thead>
+            <tr>
+              <th style="text-align: left;">Chủng loại</th>
+              <th>Hòa Phát</th>
+              <th>VAS (Việt Mỹ)</th>
+              <th>Pomina</th>
+              <th>Miền Nam</th>
+              <th>Tung Ho</th>
+              <th>Vina Kyoei</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td style="text-align: left; font-weight: bold;">D10</td><td>440</td><td>440</td><td>230</td><td>350</td><td>300</td><td>300</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D12</td><td>320</td><td>320</td><td>200</td><td>250</td><td>260</td><td>260</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D14</td><td>222</td><td>222</td><td>140</td><td>180</td><td>190</td><td>190</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D16</td><td>180</td><td>180</td><td>120</td><td>140</td><td>150</td><td>150</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D18</td><td>138</td><td>138</td><td>100</td><td>110</td><td>115</td><td>115</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D20</td><td>114</td><td>114</td><td>80</td><td>90</td><td>95</td><td>95</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D22</td><td>90</td><td>90</td><td>60</td><td>70</td><td>76</td><td>76</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D25</td><td>72</td><td>72</td><td>50</td><td>58</td><td>60</td><td>60</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D28</td><td>57</td><td>57</td><td>40</td><td>45</td><td>48</td><td>48</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D32</td><td>45</td><td>45</td><td>30</td><td>35</td><td>36</td><td>36</td></tr>
+            <tr><td style="text-align: left; font-weight: bold;">D36</td><td>35</td><td>-</td><td>-</td><td>27</td><td>-</td><td>-</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      Dự án Công Cụ Tính Bó Thép POVINA &copy; 2026. Sẵn sàng triển khai trên GitHub Pages.
+    </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">Đã thực hiện xong!</div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
