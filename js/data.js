@@ -169,7 +169,41 @@ const STEEL_SUPPLIERS = {
   }
 };
 
+/**
+ * BAREM QUỐC TẾ (klm_qte: Khối lượng mét chuẩn Quốc Tế / TCVN)
+ * Dùng để quy đổi 2 chiều:
+ * - Khối lượng (Kg/Tấn) <-> Số cây thép (DB)
+ * - Khối lượng (Kg/Tấn) <-> Số cuộn & chiều dài mét (WR)
+ */
+const QTE_BAREM = {
+  // Thép thanh vằn (Thép cây - DB)
+  DB: {
+    D10: { name: "D10", klm_qte: 0.617, length: 11.7, unit: "cây" },
+    D12: { name: "D12", klm_qte: 0.888, length: 11.7, unit: "cây" },
+    D14: { name: "D14", klm_qte: 1.210, length: 11.7, unit: "cây" },
+    D16: { name: "D16", klm_qte: 1.580, length: 11.7, unit: "cây" },
+    D18: { name: "D18", klm_qte: 2.000, length: 11.7, unit: "cây" },
+    D20: { name: "D20", klm_qte: 2.470, length: 11.7, unit: "cây" },
+    D22: { name: "D22", klm_qte: 2.980, length: 11.7, unit: "cây" },
+    D25: { name: "D25", klm_qte: 3.850, length: 11.7, unit: "cây" },
+    D28: { name: "D28", klm_qte: 4.830, length: 11.7, unit: "cây" },
+    D32: { name: "D32", klm_qte: 6.310, length: 11.7, unit: "cây" },
+    D36: { name: "D36", klm_qte: 7.990, length: 11.7, unit: "cây" },
+    D40: { name: "D40", klm_qte: 9.860, length: 11.7, unit: "cây" }
+  },
+
+  // Thép cuộn (Wire Rod - WR)
+  WR: {
+    D6:   { name: "D6",   klm_qte: 0.222, defaultCoilKg: 2000, unit: "cuộn" },
+    D6_5: { name: "D6.5", klm_qte: 0.260, defaultCoilKg: 2000, unit: "cuộn" },
+    D8:   { name: "D8",   klm_qte: 0.395, defaultCoilKg: 2000, unit: "cuộn" },
+    D8_5: { name: "D8.5", klm_qte: 0.445, defaultCoilKg: 2000, unit: "cuộn" },
+    D10:  { name: "D10",  klm_qte: 0.617, defaultCoilKg: 2000, unit: "cuộn" },
+    D12:  { name: "D12",  klm_qte: 0.888, defaultCoilKg: 2000, unit: "cuộn" }
+  }
+};
+
 // Hỗ trợ xuất module nếu dùng trong môi trường Node.js / Testing
 if (typeof module !== "undefined" && module.exports) {
-  module.exports = { STANDARD_BAREM, STEEL_SUPPLIERS };
+  module.exports = { STANDARD_BAREM, STEEL_SUPPLIERS, QTE_BAREM };
 }

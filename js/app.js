@@ -39,6 +39,10 @@ document.addEventListener("DOMContentLoaded", () => {
   renderDiameterButtons();
   setupEventListeners();
   calculate();
+  
+  // Khởi tạo tính năng Tab Chính và Barem Quốc Tế
+  initMainTabs();
+  initQteCalculator();
 });
 
 // Render Supplier Radio Cards
@@ -438,3 +442,429 @@ function showToast(msg) {
     toast.classList.remove("show");
   }, 2500);
 }
+
+/* ==========================================================================
+   MODULE 2: QUY ĐỔI BAREM QUỐC TẾ (klm_qte)
+   Hỗ trợ quy đổi 2 chiều Khối lượng <-> Số cây (DB) / Số cuộn (WR)
+   ========================================================================== */
+
+// State cho Tab Barem Quốc Tế
+let qteCategory = "DB"; // 'DB' (Thép Cây) hoặc 'WR' (Thép Cuộn)
+let qteDiameter = "D10";
+let qteMode = "weight_to_qty"; // 'weight_to_qty' hoặc 'qty_to_weight'
+let qteWeightUnit = "kg"; // 'kg' hoặc 'ton'
+let qteBarLength = 11.7; // mét (cho thép cây)
+let qteCoilWeight = 2000; // kg/cuộn (cho thép cuộn)
+
+// Khởi tạo chuyển đổi Tab chính (Barem Nhà Máy vs Barem Quốc Tế)
+function initMainTabs() {
+  const mainTabBtns = document.querySelectorAll(".main-nav-btn");
+  const tabContents = document.querySelectorAll(".main-tab-content");
+
+  mainTabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      mainTabBtns.forEach(b => b.classList.remove("active"));
+      tabContents.forEach(tc => tc.classList.remove("active"));
+
+      btn.classList.add("active");
+      const targetId = btn.dataset.target;
+      const targetContent = document.getElementById(targetId);
+      if (targetContent) {
+        targetContent.classList.add("active");
+      }
+    });
+  });
+}
+
+// Khởi tạo chức năng Barem Quốc Tế
+function initQteCalculator() {
+  const catPillDb = document.getElementById("cat-pill-db");
+  const catPillWr = document.getElementById("cat-pill-wr");
+  const btnModeWToQty = document.getElementById("qte-mode-w-to-qty");
+  const btnModeQtyToW = document.getElementById("qte-mode-qty-to-w");
+  const sectionWToQty = document.getElementById("qte-section-weight-to-qty");
+  const sectionQtyToW = document.getElementById("qte-section-qty-to-weight");
+
+  const inputWeight = document.getElementById("qte-input-weight");
+  const inputQty = document.getElementById("qte-input-qty");
+  const btnCopyQte = document.getElementById("btn-copy-qte-result");
+
+  // Đổi Nhóm Hàng (Thép Cây DB vs Thép Cuộn WR)
+  catPillDb.addEventListener("click", () => {
+    catPillDb.classList.add("active");
+    catPillWr.classList.remove("active");
+    qteCategory = "DB";
+    qteDiameter = "D10";
+    document.getElementById("qte-diameter-label").textContent = "Chọn Đường Kính Thép Cây (DB):";
+    document.getElementById("qte-input-qty-label").textContent = "Nhập Số Cây Thép:";
+    document.getElementById("qte-mode-w-to-qty").innerHTML = "⚖️ Nhập Khối Lượng ➔ Ra Số Cây";
+    document.getElementById("qte-mode-qty-to-w").innerHTML = "🔢 Nhập Số Cây ➔ Ra Khối Lượng";
+    renderQteDiameters();
+    renderQteParamBox();
+    calculateQte();
+  });
+
+  catPillWr.addEventListener("click", () => {
+    catPillWr.classList.add("active");
+    catPillDb.classList.remove("active");
+    qteCategory = "WR";
+    qteDiameter = "D6";
+    document.getElementById("qte-diameter-label").textContent = "Chọn Đường Kính Thép Cuộn (WR):";
+    document.getElementById("qte-input-qty-label").textContent = "Nhập Số Cuộn Thép:";
+    document.getElementById("qte-mode-w-to-qty").innerHTML = "⚖️ Nhập Khối Lượng ➔ Ra Số Cuộn";
+    document.getElementById("qte-mode-qty-to-w").innerHTML = "🌀 Nhập Số Cuộn ➔ Ra Khối Lượng";
+    renderQteDiameters();
+    renderQteParamBox();
+    calculateQte();
+  });
+
+  // Đổi chiều tính toán (Khối lượng -> Số lượng hoặc ngược lại)
+  btnModeWToQty.addEventListener("click", () => {
+    btnModeWToQty.classList.add("active");
+    btnModeQtyToW.classList.remove("active");
+    qteMode = "weight_to_qty";
+    sectionWToQty.style.display = "block";
+    sectionQtyToW.style.display = "none";
+    calculateQte();
+  });
+
+  btnModeQtyToW.addEventListener("click", () => {
+    btnModeQtyToW.classList.add("active");
+    btnModeWToQty.classList.remove("active");
+    qteMode = "qty_to_weight";
+    sectionWToQty.style.display = "none";
+    sectionQtyToW.style.display = "block";
+    calculateQte();
+  });
+
+  // Chuyển đơn vị Khối lượng (Kg <-> Tấn)
+  document.querySelectorAll(".unit-switch-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".unit-switch-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const newUnit = btn.dataset.unit;
+      const currentVal = parseFloat(inputWeight.value) || 0;
+      
+      if (qteWeightUnit === "kg" && newUnit === "ton") {
+        inputWeight.value = (currentVal / 1000).toFixed(3);
+      } else if (qteWeightUnit === "ton" && newUnit === "kg") {
+        inputWeight.value = Math.round(currentVal * 1000);
+      }
+      qteWeightUnit = newUnit;
+      calculateQte();
+    });
+  });
+
+  // Lắng nghe thay đổi ô nhập số
+  inputWeight.addEventListener("input", calculateQte);
+  inputQty.addEventListener("input", calculateQte);
+
+  // Nút cộng nhanh khối lượng
+  document.querySelectorAll(".qte-quick-w-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const addValKg = parseFloat(btn.dataset.val);
+      const currentVal = parseFloat(inputWeight.value) || 0;
+      if (qteWeightUnit === "ton") {
+        inputWeight.value = (currentVal + (addValKg / 1000)).toFixed(3);
+      } else {
+        inputWeight.value = Math.round(currentVal + addValKg);
+      }
+      calculateQte();
+    });
+  });
+
+  // Nút cộng nhanh số cây / số cuộn
+  document.querySelectorAll(".qte-quick-qty-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const addQty = parseInt(btn.dataset.val, 10);
+      const currentQty = parseInt(inputQty.value, 10) || 0;
+      inputQty.value = currentQty + addQty;
+      calculateQte();
+    });
+  });
+
+  // Sao chép kết quả
+  btnCopyQte.addEventListener("click", copyQteResult);
+
+  // Khởi tạo ban đầu
+  renderQteDiameters();
+  renderQteParamBox();
+  calculateQte();
+}
+
+// Render nút chọn đường kính cho Barem Quốc Tế
+function renderQteDiameters() {
+  const container = document.getElementById("qte-diameter-btns");
+  container.innerHTML = "";
+
+  const specs = QTE_BAREM[qteCategory];
+  Object.keys(specs).forEach(dKey => {
+    const item = specs[dKey];
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `diameter-btn ${dKey === qteDiameter ? "active" : ""}`;
+    btn.textContent = item.name;
+
+    btn.addEventListener("click", () => {
+      qteDiameter = dKey;
+      renderQteDiameters();
+      renderQteParamBox();
+      calculateQte();
+    });
+
+    container.appendChild(btn);
+  });
+}
+
+// Render ô điều chỉnh chiều dài cây (DB) hoặc khối lượng 1 cuộn (WR)
+function renderQteParamBox() {
+  const box = document.getElementById("qte-param-box");
+  const spec = QTE_BAREM[qteCategory][qteDiameter];
+
+  if (qteCategory === "DB") {
+    box.innerHTML = `
+      <span>📏 Chiều dài cây thép:</span>
+      <input type="number" id="qte-bar-length" step="0.1" min="1" value="${qteBarLength}">
+      <span>mét</span>
+      <span style="color: #64748b; font-size: 0.8rem;">(Chuẩn xuất kho nhà máy: 11.7m; hàng ngắn: 6m, 12m)</span>
+    `;
+    const inputLen = document.getElementById("qte-bar-length");
+    inputLen.addEventListener("input", (e) => {
+      qteBarLength = parseFloat(e.target.value) || 11.7;
+      calculateQte();
+    });
+  } else {
+    box.innerHTML = `
+      <span>⚖️ Trọng lượng 1 cuộn ước tính:</span>
+      <input type="number" id="qte-coil-weight" step="50" min="100" value="${qteCoilWeight}">
+      <span>kg/cuộn</span>
+      <div style="display:flex; gap:6px; margin-left:auto;">
+        <button type="button" class="quick-btn" onclick="setQteCoilWeight(780)">780 kg</button>
+        <button type="button" class="quick-btn" onclick="setQteCoilWeight(1000)">1,000 kg</button>
+        <button type="button" class="quick-btn" onclick="setQteCoilWeight(1500)">1,500 kg</button>
+        <button type="button" class="quick-btn" onclick="setQteCoilWeight(2000)">2,000 kg</button>
+        <button type="button" class="quick-btn" onclick="setQteCoilWeight(2100)">2,100 kg</button>
+      </div>
+    `;
+    const inputCoil = document.getElementById("qte-coil-weight");
+    inputCoil.addEventListener("input", (e) => {
+      qteCoilWeight = parseFloat(e.target.value) || 2000;
+      calculateQte();
+    });
+  }
+}
+
+// Đặt nhanh trọng lượng cuộn
+window.setQteCoilWeight = function(kg) {
+  qteCoilWeight = kg;
+  const input = document.getElementById("qte-coil-weight");
+  if (input) input.value = kg;
+  calculateQte();
+};
+
+// Tính toán quy đổi theo Barem Quốc Tế (klm_qte)
+function calculateQte() {
+  const spec = QTE_BAREM[qteCategory][qteDiameter];
+  if (!spec) return;
+
+  const klmQte = spec.klm_qte; // kg/m
+  const banner = document.getElementById("qte-spec-banner");
+  const resHighlight = document.getElementById("qte-result-highlight");
+  const resQtyVal = document.getElementById("qte-res-qty-val");
+  const resQtySub = document.getElementById("qte-res-qty-sub");
+  const resQtyLabel = document.getElementById("qte-res-qty-label");
+  const resWeightVal = document.getElementById("qte-res-weight-val");
+  const resWeightSub = document.getElementById("qte-res-weight-sub");
+  const resLengthVal = document.getElementById("qte-res-length-val");
+  const resExtraVal = document.getElementById("qte-res-extra-val");
+  const resExtraSub = document.getElementById("qte-res-extra-sub");
+  const resExtraLabel = document.getElementById("qte-res-extra-label");
+
+  const inputWeightEl = document.getElementById("qte-input-weight");
+  const inputQtyEl = document.getElementById("qte-input-qty");
+
+  // TRƯỜNG HỢP 1: THÉP CÂY / THANH VẰN (DB)
+  if (qteCategory === "DB") {
+    const barWeightKg = klmQte * qteBarLength; // Trọng lượng 1 cây chuẩn quốc tế
+    banner.innerHTML = `Mặt hàng: <strong>${spec.name} (DB)</strong> | Chiều dài: <strong>${qteBarLength} m</strong> | Barem quốc tế (klm_qte): <strong>${klmQte.toFixed(3)} kg/m</strong> ➔ Trọng lượng 1 cây: <strong>${barWeightKg.toFixed(3)} kg/cây</strong>`;
+
+    resQtyLabel.textContent = "Số Cây Thép Quy Đổi";
+    resExtraLabel.textContent = "Khối Lượng Dư Sau Quy Đổi";
+
+    if (qteMode === "weight_to_qty") {
+      let rawWeight = parseFloat(inputWeightEl.value) || 0;
+      let totalKg = qteWeightUnit === "ton" ? rawWeight * 1000 : rawWeight;
+      totalKg = Math.max(0, totalKg);
+
+      const exactBars = totalKg / barWeightKg;
+      const fullBars = Math.floor(exactBars);
+      const remainKg = totalKg - (fullBars * barWeightKg);
+      const totalMeters = totalKg / klmQte;
+
+      if (totalKg === 0) {
+        resHighlight.innerHTML = `0 <span>cây</span>`;
+      } else if (remainKg < 0.05) {
+        resHighlight.innerHTML = `${fullBars.toLocaleString()} <span>cây (tròn)</span>`;
+      } else {
+        resHighlight.innerHTML = `${fullBars.toLocaleString()} <span>cây</span> <span style="font-size:1.1rem; color:#f59e0b;">(+ ${remainKg.toFixed(1)} kg)</span>`;
+      }
+
+      resQtyVal.textContent = `${fullBars.toLocaleString()} cây`;
+      resQtySub.textContent = `Chính xác: ${exactBars.toFixed(2)} cây`;
+
+      resWeightVal.textContent = `${Math.round(totalKg).toLocaleString()} kg`;
+      resWeightSub.textContent = `${(totalKg / 1000).toFixed(3)} tấn`;
+
+      resLengthVal.textContent = `${Math.round(totalMeters).toLocaleString()} m`;
+
+      resExtraVal.textContent = `${remainKg.toFixed(1)} kg`;
+      resExtraSub.textContent = `Tương đương ${(remainKg / barWeightKg).toFixed(2)} cây`;
+    } else {
+      // qty_to_weight
+      let bars = Math.max(0, parseInt(inputQtyEl.value, 10) || 0);
+      let totalKg = bars * barWeightKg;
+      let totalMeters = bars * qteBarLength;
+
+      resHighlight.innerHTML = `${Math.round(totalKg).toLocaleString()} <span>kg</span> <span style="font-size:1.1rem; color:#94a3b8;">(${(totalKg/1000).toFixed(3)} tấn)</span>`;
+
+      resQtyVal.textContent = `${bars.toLocaleString()} cây`;
+      resQtySub.textContent = `Đóng ${bars.toLocaleString()} cây theo barem quốc tế`;
+
+      resWeightVal.textContent = `${Math.round(totalKg).toLocaleString()} kg`;
+      resWeightSub.textContent = `${(totalKg / 1000).toFixed(3)} tấn`;
+
+      resLengthVal.textContent = `${Math.round(totalMeters).toLocaleString()} m`;
+
+      resExtraVal.textContent = `0 kg`;
+      resExtraSub.textContent = `Tính theo chẵn ${bars.toLocaleString()} cây`;
+    }
+  } 
+  // TRƯỜNG HỢP 2: THÉP CUỘN (WR)
+  else {
+    banner.innerHTML = `Mặt hàng: <strong>${spec.name} (WR)</strong> | Barem quốc tế (klm_qte): <strong>${klmQte.toFixed(3)} kg/m</strong> | Khối lượng 1 cuộn: <strong>${qteCoilWeight.toLocaleString()} kg/cuộn</strong>`;
+
+    resQtyLabel.textContent = "Số Cuộn Thép Quy Đổi";
+    resExtraLabel.textContent = "Khối Lượng Lẻ Ngoài Cuộn";
+
+    if (qteMode === "weight_to_qty") {
+      let rawWeight = parseFloat(inputWeightEl.value) || 0;
+      let totalKg = qteWeightUnit === "ton" ? rawWeight * 1000 : rawWeight;
+      totalKg = Math.max(0, totalKg);
+
+      const exactCoils = totalKg / qteCoilWeight;
+      const fullCoils = Math.floor(exactCoils);
+      const remainKg = totalKg - (fullCoils * qteCoilWeight);
+      const totalMeters = totalKg / klmQte;
+
+      if (totalKg === 0) {
+        resHighlight.innerHTML = `0 <span>cuộn</span>`;
+      } else if (remainKg < 1) {
+        resHighlight.innerHTML = `${fullCoils.toLocaleString()} <span>cuộn (tròn)</span>`;
+      } else {
+        resHighlight.innerHTML = `${fullCoils.toLocaleString()} <span>cuộn</span> <span style="font-size:1.1rem; color:#f59e0b;">(+ ${Math.round(remainKg).toLocaleString()} kg)</span>`;
+      }
+
+      resQtyVal.textContent = `${fullCoils.toLocaleString()} cuộn`;
+      resQtySub.textContent = `Chính xác: ${exactCoils.toFixed(2)} cuộn`;
+
+      resWeightVal.textContent = `${Math.round(totalKg).toLocaleString()} kg`;
+      resWeightSub.textContent = `${(totalKg / 1000).toFixed(3)} tấn`;
+
+      resLengthVal.textContent = `${Math.round(totalMeters).toLocaleString()} m`;
+
+      resExtraVal.textContent = `${Math.round(remainKg).toLocaleString()} kg`;
+      resExtraSub.textContent = `Tương đương ${(remainKg / qteCoilWeight).toFixed(2)} cuộn`;
+    } else {
+      // qty_to_weight
+      let coils = Math.max(0, parseInt(inputQtyEl.value, 10) || 0);
+      let totalKg = coils * qteCoilWeight;
+      let totalMeters = totalKg / klmQte;
+
+      resHighlight.innerHTML = `${Math.round(totalKg).toLocaleString()} <span>kg</span> <span style="font-size:1.1rem; color:#94a3b8;">(${(totalKg/1000).toFixed(3)} tấn)</span>`;
+
+      resQtyVal.textContent = `${coils.toLocaleString()} cuộn`;
+      resQtySub.textContent = `Quy chuẩn ${coils.toLocaleString()} cuộn x ${qteCoilWeight} kg`;
+
+      resWeightVal.textContent = `${Math.round(totalKg).toLocaleString()} kg`;
+      resWeightSub.textContent = `${(totalKg / 1000).toFixed(3)} tấn`;
+
+      resLengthVal.textContent = `${Math.round(totalMeters).toLocaleString()} m`;
+
+      resExtraVal.textContent = `0 kg`;
+      resExtraSub.textContent = `Tính theo chẵn ${coils.toLocaleString()} cuộn`;
+    }
+  }
+}
+
+// Sao chép kết quả quy đổi Quốc Tế để gửi Zalo
+function copyQteResult() {
+  const spec = QTE_BAREM[qteCategory][qteDiameter];
+  if (!spec) return;
+
+  const klmQte = spec.klm_qte;
+  const inputWeightEl = document.getElementById("qte-input-weight");
+  const inputQtyEl = document.getElementById("qte-input-qty");
+
+  let text = `QUY ĐỔI BAREM QUỐC TẾ (klm_qte):\n`;
+  text += `- Thời gian: ${new Date().toLocaleString("vi-VN")}\n`;
+
+  if (qteCategory === "DB") {
+    const barWeightKg = klmQte * qteBarLength;
+    text += `- Chủng loại: Thép cây ${spec.name} (DB)\n`;
+    text += `- Chiều dài chuẩn: ${qteBarLength} m\n`;
+    text += `- klm_qte: ${klmQte.toFixed(3)} kg/m (Barem: ${barWeightKg.toFixed(3)} kg/cây)\n`;
+
+    if (qteMode === "weight_to_qty") {
+      let rawWeight = parseFloat(inputWeightEl.value) || 0;
+      let totalKg = qteWeightUnit === "ton" ? rawWeight * 1000 : rawWeight;
+      const exactBars = totalKg / barWeightKg;
+      const fullBars = Math.floor(exactBars);
+      const remainKg = totalKg - (fullBars * barWeightKg);
+      const totalMeters = totalKg / klmQte;
+
+      text += `- Khối lượng cân: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
+      text += `➔ KẾT QUẢ: ${fullBars.toLocaleString()} cây (Dư ${remainKg.toFixed(1)} kg | Chính xác: ${exactBars.toFixed(2)} cây)\n`;
+      text += `- Tổng chiều dài: ~${Math.round(totalMeters).toLocaleString()} mét`;
+    } else {
+      let bars = Math.max(0, parseInt(inputQtyEl.value, 10) || 0);
+      let totalKg = bars * barWeightKg;
+      let totalMeters = bars * qteBarLength;
+
+      text += `- Số lượng: ${bars.toLocaleString()} cây\n`;
+      text += `➔ KHỐI LƯỢNG QUỐC TẾ: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
+      text += `- Tổng chiều dài: ~${Math.round(totalMeters).toLocaleString()} mét`;
+    }
+  } else {
+    text += `- Chủng loại: Thép cuộn ${spec.name} (WR)\n`;
+    text += `- klm_qte: ${klmQte.toFixed(3)} kg/m\n`;
+    text += `- Trọng lượng 1 cuộn: ${qteCoilWeight.toLocaleString()} kg/cuộn\n`;
+
+    if (qteMode === "weight_to_qty") {
+      let rawWeight = parseFloat(inputWeightEl.value) || 0;
+      let totalKg = qteWeightUnit === "ton" ? rawWeight * 1000 : rawWeight;
+      const exactCoils = totalKg / qteCoilWeight;
+      const fullCoils = Math.floor(exactCoils);
+      const remainKg = totalKg - (fullCoils * qteCoilWeight);
+      const totalMeters = totalKg / klmQte;
+
+      text += `- Khối lượng cân: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
+      text += `➔ KẾT QUẢ: ${fullCoils.toLocaleString()} cuộn + ${Math.round(remainKg)} kg (Chính xác: ${exactCoils.toFixed(2)} cuộn)\n`;
+      text += `- Tổng chiều dài mét: ~${Math.round(totalMeters).toLocaleString()} mét`;
+    } else {
+      let coils = Math.max(0, parseInt(inputQtyEl.value, 10) || 0);
+      let totalKg = coils * qteCoilWeight;
+      let totalMeters = totalKg / klmQte;
+
+      text += `- Số lượng: ${coils.toLocaleString()} cuộn\n`;
+      text += `➔ KHỐI LƯỢNG: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
+      text += `- Tổng chiều dài mét: ~${Math.round(totalMeters).toLocaleString()} mét`;
+    }
+  }
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast("Đã sao chép kết quả quy đổi Barem Quốc Tế!");
+  }).catch(() => {
+    showToast("Không thể sao chép tự động!");
+  });
+}
+

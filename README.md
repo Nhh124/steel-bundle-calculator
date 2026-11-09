@@ -1,12 +1,15 @@
-# Ứng Dụng Tính Số Bó & Cây Lẻ Thép Xây Dựng (Steel Bundle Calculator)
+# Ứng Dụng Tính Số Bó & Quy Đổi Barem Thép (Steel Calculator)
 
-Ứng dụng web trực quan, chuyên nghiệp phục vụ công tác cân xe, bốc dỡ và quản lý kho thép xây dựng. Hỗ trợ tự động quy đổi giữa **Tổng số cây** sang **Số bó chẵn + Số cây lẻ**, đồng thời tính khối lượng lý thuyết (kg / tấn) theo chuẩn barem của 6 nhà sản xuất thép lớn tại Việt Nam.
+Ứng dụng web trực quan, chuyên nghiệp phục vụ công tác cân xe, bốc dỡ và quản lý kho thép xây dựng POVINA. Ứng dụng tích hợp 2 phân hệ chuyên biệt:
+1. **Phân hệ 1**: Tính số bó & cây lẻ theo barem thực tế của 6 nhà máy thép (Hòa Phát, VAS, Pomina, Miền Nam, Tung Ho, Vina Kyoei).
+2. **Phân hệ 2**: Quy đổi 2 chiều theo **Barem Quốc Tế (`klm_qte` - kg/m)** giữa Khối lượng cân (Kg/Tấn) $\leftrightarrow$ **Số cây** (Thép cây DB) và **Số cuộn** (Thép cuộn WR).
 
 ---
 
 ## 🌟 Tính Năng Nổi Bật
 
-1. **Chọn Nhà Cung Cấp Trực Quan (Radio Buttons)**:
+### 📦 TAB 1: Tính Bó & Cây Lẻ (Barem Nhà Máy)
+1. **Chọn Nhà Cung Cấp Trực Quan (Radio Cards)**:
    - **Hòa Phát** (Bình Dương, Ninh Thuận)
    - **VAS - Việt Mỹ** (Thương Mại, An Hưng Tường)
    - **Pomina** (Bình Dương, Phú Mỹ)
@@ -22,14 +25,27 @@
    - **Chiều 1**: Nhập Tổng số cây $\rightarrow$ Tự động tính ra **Số bó chẵn + Số cây lẻ** (kèm số cây đóng đai nguyên bó).
    - **Chiều 2**: Nhập Số bó chẵn + Số cây lẻ $\rightarrow$ Tự động tính ra **Tổng số cây**.
 
-4. **Khối Lượng Barem Nhà Máy (Lý Thuyết)**:
-   - Tự động tính trọng lượng theo mác thép **CB4/CB5** hoặc **CB3/GR40/SD295**.
-
-5. **Phiếu Cân Xe / Chuyến Xe Nhiều Chủng Loại**:
-   - Cho phép thêm nhiều loại thép trên 1 chuyến xe (ví dụ: D10 + D14 + D20...).
+4. **Phiếu Cân Xe / Chuyến Xe Nhiều Chủng Loại**:
+   - Cho phép thêm nhiều loại thép trên 1 chuyến xe (D10 + D14 + D20...).
    - Tự động cộng dồn tổng số cây, tổng số bó, tổng cây lẻ và tổng tải trọng hàng trên xe.
 
-6. **Sao Chép Nhanh (Zalo / Báo Cáo)**:
+---
+
+### 🌐 TAB 2: Quy Đổi Barem Quốc Tế (`klm_qte` ➔ Cây / Cuộn)
+1. **Thép Cây / Thanh Vằn (`DB`)**:
+   - Dải đường kính: **D10 đến D40** với các giá trị `klm_qte` chuẩn TCVN ($0.617 - 9.860\,\text{kg/m}$).
+   - **Quy đổi 2 chiều**:
+     - Nhập Khối Lượng (Kg/Tấn) $\rightarrow$ Tính ra **Số cây chẵn** + **Khối lượng dư lẻ** (kg) và Tổng mét dài.
+     - Nhập Số Cây $\rightarrow$ Tính ra **Tổng khối lượng** (Kg và Tấn) theo chuẩn barem quốc tế.
+   - Hỗ trợ tùy chỉnh chiều dài cây (mặc định $11.7\,\text{m}$, linh hoạt cho hàng $6\,\text{m}$, $12\,\text{m}$).
+
+2. **Thép Cuộn (`WR` - Wire Rod)**:
+   - Dải quy cách: **D6, D6.5, D8, D8.5, D10, D12** với `klm_qte` chuẩn ($0.222 - 0.888\,\text{kg/m}$).
+   - **Quy đổi 2 chiều**:
+     - Nhập Khối Lượng (Kg/Tấn) $\rightarrow$ Tính ra **Số cuộn chẵn** + **Khối lượng lẻ** (kg) và Tổng chiều dài cuộn thép (mét).
+     - Nhập Số Cuộn $\rightarrow$ Tính ra Khối lượng tương ứng theo định mức cuộn ($780\,\text{kg}$, $1,000\,\text{kg}$, $1,500\,\text{kg}$, $2,000\,\text{kg}$, $2,100\,\text{kg}$...).
+
+3. **Sao Chép Nhanh Kết Quả**:
    - 1 nút bấm sao chép kết quả định dạng rõ ràng để dán ngay vào Zalo gửi cho khách hàng, tài xế hoặc thủ kho.
 
 ---
@@ -98,6 +114,36 @@
 | **D28** | 57 | 57 | 40 | 45 | 48 | 48 |
 | **D32** | 45 | 45 | 30 | 35 | 36 | 36 |
 | **D36** | 35 | - | - | 27 | - | - |
+
+---
+
+## 🌐 Bảng Tra Barem Quốc Tế (klm_qte - Chuẩn TCVN)
+
+### 1. Thép Cây / Thanh Vằn (`DB` - Chiều dài chuẩn 11.7m):
+| Chủng loại | klm_qte (kg/m) | Trọng lượng 1 cây 11.7m (kg) |
+|:---:|:---:|:---:|
+| **D10** | 0.617 | 7.219 |
+| **D12** | 0.888 | 10.390 |
+| **D14** | 1.210 | 14.157 |
+| **D16** | 1.580 | 18.486 |
+| **D18** | 2.000 | 23.400 |
+| **D20** | 2.470 | 28.899 |
+| **D22** | 2.980 | 34.866 |
+| **D25** | 3.850 | 45.045 |
+| **D28** | 4.830 | 56.511 |
+| **D32** | 6.310 | 73.827 |
+| **D36** | 7.990 | 93.483 |
+| **D40** | 9.860 | 115.362 |
+
+### 2. Thép Cuộn (`WR` - Wire Rod):
+| Chủng loại | klm_qte (kg/m) | Định mức cuộn tiêu chuẩn |
+|:---:|:---:|:---:|
+| **D6** | 0.222 | ~2,000 kg/cuộn (9,009 mét) |
+| **D6.5** | 0.260 | ~2,000 kg/cuộn (7,692 mét) |
+| **D8** | 0.395 | ~2,000 kg/cuộn (5,063 mét) |
+| **D8.5** | 0.445 | ~2,000 kg/cuộn (4,494 mét) |
+| **D10 cuộn** | 0.617 | ~2,000 kg/cuộn (3,241 mét) |
+| **D12 cuộn** | 0.888 | ~2,000 kg/cuộn (2,252 mét) |
 
 ---
 

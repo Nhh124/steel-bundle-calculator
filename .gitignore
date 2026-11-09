@@ -12,3 +12,8 @@ desktop.ini
 # Temp files
 *.tmp
 *.log
+
+# Data files (Excel/Office)
+*.xlsx
+*.xls
+
