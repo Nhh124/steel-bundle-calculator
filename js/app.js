@@ -56,14 +56,14 @@ function renderSupplierRadios() {
     item.className = "supplier-radio-item";
     item.innerHTML = `
       <input type="radio" name="supplier" value="${supplier.id}" ${isChecked ? "checked" : ""}>
-      <div class="supplier-card">
+      <div class="supplier-card" title="${supplier.name} - ${supplier.location}">
         <div class="radio-indicator"></div>
         <div class="supplier-info">
           <div class="supplier-name">
             <span>${supplier.name}</span>
             <span class="supplier-badge" style="background-color: ${supplier.badgeColor}">${supplier.code}</span>
           </div>
-          <div class="supplier-sub">${supplier.location}</div>
+          <div class="supplier-sub" title="${supplier.location}">${supplier.location}</div>
         </div>
       </div>
     `;
@@ -474,14 +474,14 @@ function renderQteBSuppliers() {
     item.className = "supplier-radio-item";
     item.innerHTML = `
       <input type="radio" name="qte-b-supplier" value="${supplier.id}" ${isChecked ? "checked" : ""}>
-      <div class="supplier-card">
+      <div class="supplier-card" title="${supplier.name} - ${supplier.location}">
         <div class="radio-indicator"></div>
         <div class="supplier-info">
           <div class="supplier-name">
             <span>${supplier.name}</span>
             <span class="supplier-badge" style="background-color: ${supplier.badgeColor}">${supplier.code}</span>
           </div>
-          <div class="supplier-sub">${supplier.location}</div>
+          <div class="supplier-sub" title="${supplier.location}">${supplier.location}</div>
         </div>
       </div>
     `;

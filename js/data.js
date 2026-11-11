@@ -97,7 +97,7 @@ const STEEL_SUPPLIERS = {
     id: "mien_nam",
     name: "MIỀN NAM",
     code: "MN",
-    location: "Phú Mỹ, Thủ Đức, Biên Hòa, Nhà Bè (PM, TĐ, BH, NB)",
+    location: "Phú Mỹ, Biên Hòa, Thủ Đức (PM, BH)",
     badgeColor: "#16a34a",
     specs: {
       D10: { bundle: 350, cb4_5: 6.93, cb3: 6.22 },
