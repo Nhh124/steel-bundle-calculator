@@ -40,9 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
   calculate();
   
-  // Khởi tạo tính năng Tab Chính và Barem Quốc Tế
+  // Khởi tạo tính năng Tab Chính và 2 Tab Barem Quốc Tế
   initMainTabs();
-  initQteCalculator();
+  initQteBundleCalculator(); // Tab 2: Tính bó barem quốc tế (nằm ở giữa)
+  initQteCalculator();       // Tab 3: Quy đổi barem quốc tế (cây/cuộn)
 });
 
 // Render Supplier Radio Cards
@@ -444,7 +445,480 @@ function showToast(msg) {
 }
 
 /* ==========================================================================
-   MODULE 2: QUY ĐỔI BAREM QUỐC TẾ (klm_qte)
+   MODULE 2: TÍNH BÓ BAREM QUỐC TẾ (NẰM Ở GIỮA 2 TAB CŨ)
+   Quy đổi giữa Khối lượng (Kg/Tấn) <-> Bó chẵn + Cây lẻ theo Barem Quốc Tế (klm_qte)
+   Ví dụ D14: 1 cây (11.7m) = 14.1570 kg (1.21 kg/m x 11.7m)
+   ========================================================================== */
+
+let qteBSupplierId = "mien_nam"; // Mặc định Thép Miền Nam
+let qteBDiameter = "D14";       // Mặc định D14 (như hình minh họa ERP của user)
+let qteBMode = "weight_to_bundle"; // 'weight_to_bundle', 'bars_to_bundle', 'bundle_to_bars'
+let qteBWeightUnit = "kg";     // 'kg' hoặc 'ton'
+let qteBVehicleItems = [];
+
+function initQteBundleCalculator() {
+  renderQteBSuppliers();
+  renderQteBDiameters();
+  setupQteBEventListeners();
+  calculateQteB();
+}
+
+function renderQteBSuppliers() {
+  const container = document.getElementById("qte-b-supplier-radios");
+  if (!container) return;
+  container.innerHTML = "";
+  
+  Object.values(STEEL_SUPPLIERS).forEach((supplier) => {
+    const isChecked = supplier.id === qteBSupplierId;
+    const item = document.createElement("label");
+    item.className = "supplier-radio-item";
+    item.innerHTML = `
+      <input type="radio" name="qte-b-supplier" value="${supplier.id}" ${isChecked ? "checked" : ""}>
+      <div class="supplier-card">
+        <div class="radio-indicator"></div>
+        <div class="supplier-info">
+          <div class="supplier-name">
+            <span>${supplier.name}</span>
+            <span class="supplier-badge" style="background-color: ${supplier.badgeColor}">${supplier.code}</span>
+          </div>
+          <div class="supplier-sub">${supplier.location}</div>
+        </div>
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+function renderQteBDiameters() {
+  const container = document.getElementById("qte-b-diameter-btns");
+  if (!container) return;
+  const diameters = ["D10", "D12", "D14", "D16", "D18", "D20", "D22", "D25", "D28", "D32", "D36", "D40"];
+  container.innerHTML = "";
+  
+  const currentSupplier = STEEL_SUPPLIERS[qteBSupplierId];
+  
+  diameters.forEach((d) => {
+    const spec = currentSupplier.specs[d];
+    const isAvailable = spec && spec.bundle !== null;
+    const isActive = d === qteBDiameter;
+    
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `diameter-btn ${isActive ? "active" : ""}`;
+    btn.disabled = !isAvailable;
+    btn.textContent = d;
+    if (!isAvailable) {
+      btn.title = "Nhà cung cấp không đóng bó cho kích cỡ này";
+    }
+    
+    btn.addEventListener("click", () => {
+      qteBDiameter = d;
+      renderQteBDiameters();
+      calculateQteB();
+    });
+    
+    container.appendChild(btn);
+  });
+}
+
+function setupQteBEventListeners() {
+  const supplierContainer = document.getElementById("qte-b-supplier-radios");
+  if (supplierContainer) {
+    supplierContainer.addEventListener("change", (e) => {
+      if (e.target.name === "qte-b-supplier") {
+        qteBSupplierId = e.target.value;
+        const supplier = STEEL_SUPPLIERS[qteBSupplierId];
+        if (!supplier.specs[qteBDiameter] || supplier.specs[qteBDiameter].bundle === null) {
+          for (const [d, spec] of Object.entries(supplier.specs)) {
+            if (spec.bundle !== null) {
+              qteBDiameter = d;
+              break;
+            }
+          }
+        }
+        renderQteBDiameters();
+        calculateQteB();
+      }
+    });
+  }
+
+  const tabWToBundle = document.getElementById("qte-b-tab-w-to-bundle");
+  const tabBarsToBundle = document.getElementById("qte-b-tab-bars-to-bundle");
+  const tabBundleToBars = document.getElementById("qte-b-tab-bundle-to-bars");
+  const secWToBundle = document.getElementById("qte-b-sec-weight-to-bundle");
+  const secBarsToBundle = document.getElementById("qte-b-sec-bars-to-bundle");
+  const secBundleToBars = document.getElementById("qte-b-sec-bundle-to-bars");
+
+  function switchMode(newMode) {
+    qteBMode = newMode;
+    [tabWToBundle, tabBarsToBundle, tabBundleToBars].forEach(t => t.classList.remove("active"));
+    [secWToBundle, secBarsToBundle, secBundleToBars].forEach(s => s.style.display = "none");
+
+    if (newMode === "weight_to_bundle") {
+      tabWToBundle.classList.add("active");
+      secWToBundle.style.display = "block";
+    } else if (newMode === "bars_to_bundle") {
+      tabBarsToBundle.classList.add("active");
+      secBarsToBundle.style.display = "block";
+    } else {
+      tabBundleToBars.classList.add("active");
+      secBundleToBars.style.display = "block";
+    }
+    calculateQteB();
+  }
+
+  tabWToBundle.addEventListener("click", () => switchMode("weight_to_bundle"));
+  tabBarsToBundle.addEventListener("click", () => switchMode("bars_to_bundle"));
+  tabBundleToBars.addEventListener("click", () => switchMode("bundle_to_bars"));
+
+  const unitKgBtn = document.getElementById("qte-b-unit-kg");
+  const unitTonBtn = document.getElementById("qte-b-unit-ton");
+  const inputWeight = document.getElementById("qte-b-input-weight");
+
+  unitKgBtn.addEventListener("click", () => {
+    if (qteBWeightUnit === "ton") {
+      qteBWeightUnit = "kg";
+      unitKgBtn.classList.add("active");
+      unitTonBtn.classList.remove("active");
+      const currentVal = parseFloat(inputWeight.value) || 0;
+      inputWeight.value = Math.round(currentVal * 1000);
+      calculateQteB();
+    }
+  });
+
+  unitTonBtn.addEventListener("click", () => {
+    if (qteBWeightUnit === "kg") {
+      qteBWeightUnit = "ton";
+      unitTonBtn.classList.add("active");
+      unitKgBtn.classList.remove("active");
+      const currentVal = parseFloat(inputWeight.value) || 0;
+      inputWeight.value = (currentVal / 1000).toFixed(3);
+      calculateQteB();
+    }
+  });
+
+  inputWeight.addEventListener("input", calculateQteB);
+  document.getElementById("qte-b-input-bars").addEventListener("input", calculateQteB);
+  document.getElementById("qte-b-input-bundles").addEventListener("input", calculateQteB);
+  document.getElementById("qte-b-input-odd-bars").addEventListener("input", calculateQteB);
+
+  document.querySelectorAll(".qte-b-quick-w").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const addValKg = parseFloat(btn.dataset.val);
+      const currentVal = parseFloat(inputWeight.value) || 0;
+      if (qteBWeightUnit === "ton") {
+        inputWeight.value = (currentVal + (addValKg / 1000)).toFixed(3);
+      } else {
+        inputWeight.value = Math.round(currentVal + addValKg);
+      }
+      calculateQteB();
+    });
+  });
+
+  document.querySelectorAll(".qte-b-quick-bars").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const addVal = parseInt(btn.dataset.val, 10);
+      const inputBars = document.getElementById("qte-b-input-bars");
+      const current = parseInt(inputBars.value, 10) || 0;
+      inputBars.value = current + addVal;
+      calculateQteB();
+    });
+  });
+
+  document.getElementById("qte-b-btn-copy-result").addEventListener("click", copyQteBResult);
+  document.getElementById("qte-b-btn-add-to-vehicle").addEventListener("click", addQteBToVehicleTrip);
+  document.getElementById("qte-b-btn-copy-vehicle").addEventListener("click", copyQteBVehicleList);
+  document.getElementById("qte-b-btn-clear-vehicle").addEventListener("click", () => {
+    if (confirm("Bạn có chắc chắn muốn xóa danh sách chuyến xe Barem QT?")) {
+      qteBVehicleItems = [];
+      renderQteBVehicleTable();
+      showToast("Đã xóa danh sách chuyến xe Barem QT!");
+    }
+  });
+}
+
+function calculateQteB() {
+  const supplier = STEEL_SUPPLIERS[qteBSupplierId];
+  const spec = supplier.specs[qteBDiameter];
+  const qteSpec = QTE_BAREM.DB[qteBDiameter];
+
+  const specBanner = document.getElementById("qte-b-spec-banner");
+  const resHighlight = document.getElementById("qte-b-result-highlight");
+  const resFullBundlesVal = document.getElementById("qte-b-res-full-bundles-val");
+  const resOddBarsVal = document.getElementById("qte-b-res-odd-bars-val");
+  const resOddBarsSub = document.getElementById("qte-b-res-odd-bars-sub");
+  const resTotalBarsVal = document.getElementById("qte-b-res-total-bars-val");
+  const resTotalBarsSub = document.getElementById("qte-b-res-total-bars-sub");
+  const resEstWeightVal = document.getElementById("qte-b-res-est-weight-val");
+
+  if (!spec || spec.bundle === null || !qteSpec) {
+    specBanner.innerHTML = `Chủng loại <strong>${qteBDiameter}</strong> không có thông số đóng bó của <strong>${supplier.name}</strong>.`;
+    resHighlight.innerHTML = `<span style="color:#f87171">Không có quy cách</span>`;
+    resFullBundlesVal.textContent = "0";
+    resOddBarsVal.textContent = "0";
+    resTotalBarsVal.textContent = "0";
+    resEstWeightVal.textContent = "0 kg";
+    return;
+  }
+
+  const bundleSize = spec.bundle;
+  const klmQte = qteSpec.klm_qte; // kg/m
+  const weightPerBar = klmQte * 11.7; // Tỷ lệ chuyển đổi: kg/cây (11.7m)
+  const fullBundleWeight = bundleSize * weightPerBar;
+
+  specBanner.innerHTML = `Quy cách <strong>${supplier.name}</strong> - <strong>${qteBDiameter}</strong>: <strong>${bundleSize} cây/bó</strong> | Barem QT: <strong>${klmQte.toFixed(3)} kg/m</strong> ➔ Tỷ lệ: <strong>${weightPerBar.toFixed(4)} kg/cây</strong> | 1 Bó nguyên = <strong>${fullBundleWeight.toFixed(2)} kg</strong>`;
+
+  let totalBars = 0;
+  let fullBundles = 0;
+  let oddBars = 0;
+  let calculatedWeightKg = 0;
+  let weightDiffKg = 0;
+
+  if (qteBMode === "weight_to_bundle") {
+    const inputWeight = document.getElementById("qte-b-input-weight");
+    let rawWeight = parseFloat(inputWeight.value) || 0;
+    let inputKg = qteBWeightUnit === "ton" ? rawWeight * 1000 : rawWeight;
+    inputKg = Math.max(0, inputKg);
+
+    const exactBars = inputKg / weightPerBar;
+    totalBars = Math.round(exactBars);
+    fullBundles = Math.floor(totalBars / bundleSize);
+    oddBars = totalBars % bundleSize;
+    calculatedWeightKg = totalBars * weightPerBar;
+    weightDiffKg = inputKg - calculatedWeightKg;
+
+    resTotalBarsSub.textContent = `Chính xác theo Kg: ${exactBars.toFixed(2)} cây`;
+    if (Math.abs(weightDiffKg) > 0.05) {
+      resOddBarsSub.textContent = `Lệch do làm tròn: ${weightDiffKg > 0 ? "+" : ""}${weightDiffKg.toFixed(2)} kg`;
+    } else {
+      resOddBarsSub.textContent = `Tròn cây chuẩn xác`;
+    }
+  } else if (qteBMode === "bars_to_bundle") {
+    const inputBars = document.getElementById("qte-b-input-bars");
+    totalBars = Math.max(0, parseInt(inputBars.value, 10) || 0);
+    fullBundles = Math.floor(totalBars / bundleSize);
+    oddBars = totalBars % bundleSize;
+    calculatedWeightKg = totalBars * weightPerBar;
+    resTotalBarsSub.textContent = `Toàn bộ lô thép`;
+    resOddBarsSub.textContent = `Cây lẻ ngoài bó`;
+  } else {
+    // bundle_to_bars
+    const inputBundles = document.getElementById("qte-b-input-bundles");
+    const inputOddBars = document.getElementById("qte-b-input-odd-bars");
+    fullBundles = Math.max(0, parseInt(inputBundles.value, 10) || 0);
+    oddBars = Math.max(0, parseInt(inputOddBars.value, 10) || 0);
+    totalBars = (fullBundles * bundleSize) + oddBars;
+    calculatedWeightKg = totalBars * weightPerBar;
+    resTotalBarsSub.textContent = `Toàn bộ lô thép`;
+    resOddBarsSub.textContent = `Cây lẻ ngoài bó`;
+  }
+
+  if (totalBars === 0) {
+    resHighlight.innerHTML = `0 <span>bó</span> + 0`;
+  } else if (oddBars === 0) {
+    resHighlight.innerHTML = `${fullBundles.toLocaleString()} <span>bó</span>`;
+  } else {
+    resHighlight.innerHTML = `${fullBundles.toLocaleString()} <span>bó</span> + ${oddBars.toLocaleString()}`;
+  }
+
+  resFullBundlesVal.textContent = `${fullBundles.toLocaleString()} bó (= ${(fullBundles * bundleSize).toLocaleString()} cây)`;
+  resOddBarsVal.textContent = `${oddBars.toLocaleString()} cây`;
+  resTotalBarsVal.textContent = `${totalBars.toLocaleString()} cây`;
+  resEstWeightVal.textContent = `${Math.round(calculatedWeightKg).toLocaleString()} kg (${(calculatedWeightKg / 1000).toFixed(3)} tấn)`;
+}
+
+function copyQteBResult() {
+  const supplier = STEEL_SUPPLIERS[qteBSupplierId];
+  const spec = supplier.specs[qteBDiameter];
+  const qteSpec = QTE_BAREM.DB[qteBDiameter];
+  if (!spec || spec.bundle === null || !qteSpec) return;
+
+  const bundleSize = spec.bundle;
+  const weightPerBar = qteSpec.klm_qte * 11.7;
+
+  let totalBars = 0;
+  let fullBundles = 0;
+  let oddBars = 0;
+
+  if (qteBMode === "weight_to_bundle") {
+    const inputWeight = document.getElementById("qte-b-input-weight");
+    let rawWeight = parseFloat(inputWeight.value) || 0;
+    let inputKg = qteBWeightUnit === "ton" ? rawWeight * 1000 : rawWeight;
+    totalBars = Math.round(inputKg / weightPerBar);
+    fullBundles = Math.floor(totalBars / bundleSize);
+    oddBars = totalBars % bundleSize;
+  } else if (qteBMode === "bars_to_bundle") {
+    const inputBars = document.getElementById("qte-b-input-bars");
+    totalBars = Math.max(0, parseInt(inputBars.value, 10) || 0);
+    fullBundles = Math.floor(totalBars / bundleSize);
+    oddBars = totalBars % bundleSize;
+  } else {
+    const inputBundles = document.getElementById("qte-b-input-bundles");
+    const inputOddBars = document.getElementById("qte-b-input-odd-bars");
+    fullBundles = Math.max(0, parseInt(inputBundles.value, 10) || 0);
+    oddBars = Math.max(0, parseInt(inputOddBars.value, 10) || 0);
+    totalBars = (fullBundles * bundleSize) + oddBars;
+  }
+
+  let resultShort = oddBars === 0 ? `${fullBundles} bó` : `${fullBundles} bó + ${oddBars}`;
+  const totalWeightKg = Math.round(totalBars * weightPerBar);
+
+  let text = `KẾT QUẢ TÍNH BÓ BAREM QUỐC TẾ (BRQT):\n`;
+  text += `- Mặt hàng: ${supplier.name} ${qteBDiameter} (11.7m)\n`;
+  text += `- Quy cách: ${bundleSize} cây/bó | Tỷ lệ Barem QT: ${weightPerBar.toFixed(4)} kg/cây\n`;
+  text += `- Tổng số cây: ${totalBars.toLocaleString()} cây\n`;
+  text += `➔ QUY ĐỔI: ${resultShort}\n`;
+  text += `- Tổng KL Barem QT: ${totalWeightKg.toLocaleString()} kg (~${(totalWeightKg/1000).toFixed(3)} tấn)`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast(`Đã sao chép: "${resultShort}" (Barem QT)`);
+  }).catch(() => {
+    showToast("Không thể sao chép tự động!");
+  });
+}
+
+function addQteBToVehicleTrip() {
+  const supplier = STEEL_SUPPLIERS[qteBSupplierId];
+  const spec = supplier.specs[qteBDiameter];
+  const qteSpec = QTE_BAREM.DB[qteBDiameter];
+  if (!spec || spec.bundle === null || !qteSpec) return;
+
+  const bundleSize = spec.bundle;
+  const weightPerBar = qteSpec.klm_qte * 11.7;
+
+  let totalBars = 0;
+  let fullBundles = 0;
+  let oddBars = 0;
+
+  if (qteBMode === "weight_to_bundle") {
+    const inputWeight = document.getElementById("qte-b-input-weight");
+    let rawWeight = parseFloat(inputWeight.value) || 0;
+    let inputKg = qteBWeightUnit === "ton" ? rawWeight * 1000 : rawWeight;
+    totalBars = Math.round(inputKg / weightPerBar);
+    fullBundles = Math.floor(totalBars / bundleSize);
+    oddBars = totalBars % bundleSize;
+  } else if (qteBMode === "bars_to_bundle") {
+    const inputBars = document.getElementById("qte-b-input-bars");
+    totalBars = Math.max(0, parseInt(inputBars.value, 10) || 0);
+    fullBundles = Math.floor(totalBars / bundleSize);
+    oddBars = totalBars % bundleSize;
+  } else {
+    const inputBundles = document.getElementById("qte-b-input-bundles");
+    const inputOddBars = document.getElementById("qte-b-input-odd-bars");
+    fullBundles = Math.max(0, parseInt(inputBundles.value, 10) || 0);
+    oddBars = Math.max(0, parseInt(inputOddBars.value, 10) || 0);
+    totalBars = (fullBundles * bundleSize) + oddBars;
+  }
+
+  if (totalBars <= 0) {
+    showToast("Vui lòng nhập số cây hoặc khối lượng lớn hơn 0!");
+    return;
+  }
+
+  const weightKg = Math.round(totalBars * weightPerBar);
+
+  qteBVehicleItems.push({
+    id: Date.now(),
+    supplierName: supplier.name,
+    supplierCode: supplier.code,
+    diameter: qteBDiameter,
+    bundleSize: bundleSize,
+    totalBars: totalBars,
+    bundles: fullBundles,
+    oddBars: oddBars,
+    weightKg: weightKg,
+    rate: weightPerBar.toFixed(4)
+  });
+
+  renderQteBVehicleTable();
+  showToast(`Đã thêm ${qteBDiameter} (${totalBars} cây) vào chuyến xe Barem QT!`);
+}
+
+function renderQteBVehicleTable() {
+  const tableBody = document.getElementById("qte-b-vehicle-table-body");
+  const totalCountEl = document.getElementById("qte-b-vehicle-total-count");
+  const footRow = document.getElementById("qte-b-vehicle-foot-row");
+
+  tableBody.innerHTML = "";
+  totalCountEl.textContent = qteBVehicleItems.length;
+
+  if (qteBVehicleItems.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">Chưa có mặt hàng nào. Nhập số liệu ở trên và bấm "Thêm Vào Danh Sách Phiếu Cân Xe".</td></tr>`;
+    footRow.style.display = "none";
+    return;
+  }
+
+  footRow.style.display = "table-row";
+
+  let sumBars = 0;
+  let sumBundles = 0;
+  let sumOdd = 0;
+  let sumWeight = 0;
+
+  qteBVehicleItems.forEach((item, index) => {
+    sumBars += item.totalBars;
+    sumBundles += item.bundles;
+    sumOdd += item.oddBars;
+    sumWeight += item.weightKg;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${index + 1}</td>
+      <td><strong>${item.supplierCode}</strong> - ${item.diameter} <span style="font-size:0.75rem; color:#64748b;">(QT: ${item.rate} kg/c)</span></td>
+      <td><strong>${item.totalBars.toLocaleString()}</strong></td>
+      <td><span style="color:#0284c7; font-weight:bold;">${item.bundles}</span> bó (${item.bundleSize} c/b)</td>
+      <td><span style="color:#ea580c; font-weight:bold;">${item.oddBars}</span> cây</td>
+      <td>${item.weightKg.toLocaleString()} kg</td>
+      <td><button type="button" class="btn-del" onclick="deleteQteBVehicleItem(${item.id})">Xóa</button></td>
+    `;
+    tableBody.appendChild(tr);
+  });
+
+  document.getElementById("qte-b-foot-total-bars").textContent = sumBars.toLocaleString();
+  document.getElementById("qte-b-foot-total-bundles").textContent = `${sumBundles.toLocaleString()} bó`;
+  document.getElementById("qte-b-foot-total-odd").textContent = `${sumOdd.toLocaleString()} cây`;
+  document.getElementById("qte-b-foot-total-weight").textContent = `${sumWeight.toLocaleString()} kg (${(sumWeight/1000).toFixed(3)} tấn)`;
+}
+
+window.deleteQteBVehicleItem = function(id) {
+  qteBVehicleItems = qteBVehicleItems.filter(item => item.id !== id);
+  renderQteBVehicleTable();
+  showToast("Đã xóa mặt hàng khỏi danh sách!");
+};
+
+function copyQteBVehicleList() {
+  if (qteBVehicleItems.length === 0) {
+    showToast("Danh sách chuyến xe đang trống!");
+    return;
+  }
+
+  let text = `DANH SÁCH THÉP CHUYẾN XE (BAREM QUỐC TẾ - ${new Date().toLocaleDateString("vi-VN")}):\n`;
+  let sumBars = 0;
+  let sumBundles = 0;
+  let sumOdd = 0;
+  let sumWeight = 0;
+
+  qteBVehicleItems.forEach((item, i) => {
+    sumBars += item.totalBars;
+    sumBundles += item.bundles;
+    sumOdd += item.oddBars;
+    sumWeight += item.weightKg;
+    text += `${i + 1}. ${item.supplierName} ${item.diameter} (${item.rate} kg/c): ${item.totalBars.toLocaleString()} cây = ${item.bundles} bó + ${item.oddBars} (~${item.weightKg.toLocaleString()} kg)\n`;
+  });
+
+  text += `--------------------------\n`;
+  text += `TỔNG CỘNG: ${sumBars.toLocaleString()} cây | ${sumBundles} bó + ${sumOdd}\n`;
+  text += `TỔNG BAREM QT: ${sumWeight.toLocaleString()} kg (~${(sumWeight/1000).toFixed(3)} tấn)`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast("Đã sao chép danh sách chuyến xe (Barem QT)!");
+  }).catch(() => {
+    showToast("Không thể sao chép tự động!");
+  });
+}
+
+/* ==========================================================================
+   MODULE 3: QUY ĐỔI BAREM QUỐC TẾ (klm_qte)
    Hỗ trợ quy đổi 2 chiều Khối lượng <-> Số cây (DB) / Số cuộn (WR)
    ========================================================================== */
 

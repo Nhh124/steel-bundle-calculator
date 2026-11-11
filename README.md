@@ -1,8 +1,9 @@
 # Ứng Dụng Tính Số Bó & Quy Đổi Barem Thép (Steel Calculator)
 
-Ứng dụng web trực quan, chuyên nghiệp phục vụ công tác cân xe, bốc dỡ và quản lý kho thép xây dựng POVINA. Ứng dụng tích hợp 2 phân hệ chuyên biệt:
-1. **Phân hệ 1**: Tính số bó & cây lẻ theo barem thực tế của 6 nhà máy thép (Hòa Phát, VAS, Pomina, Miền Nam, Tung Ho, Vina Kyoei).
-2. **Phân hệ 2**: Quy đổi 2 chiều theo **Barem Quốc Tế (`klm_qte` - kg/m)** giữa Khối lượng cân (Kg/Tấn) $\leftrightarrow$ **Số cây** (Thép cây DB) và **Số cuộn** (Thép cuộn WR).
+Ứng dụng web trực quan, chuyên nghiệp phục vụ công tác cân xe, bốc dỡ và quản lý kho thép xây dựng POVINA. Ứng dụng tích hợp 3 phân hệ chuyên biệt:
+1. **Phân hệ 1 (Tab 1 - Trái)**: Tính số bó & cây lẻ theo **Barem Nhà Máy** (Hòa Phát, VAS, Pomina, Miền Nam, Tung Ho, Vina Kyoei).
+2. **Phân hệ 2 (Tab 2 - Giữa)**: Tính số bó & cây lẻ theo **Barem Quốc Tế (BRQT)** - Tự động quy đổi từ Khối lượng cân / Tồn kho kế toán (Kg/Tấn) ➔ **Số bó chẵn + Số cây lẻ** theo chuẩn barem quốc tế (ví dụ D14 = $14.1570\,\text{kg/cây}$).
+3. **Phân hệ 3 (Tab 3 - Phải)**: Quy đổi 2 chiều theo **Barem Quốc Tế (`klm_qte` - kg/m)** giữa Khối lượng cân (Kg/Tấn) $\leftrightarrow$ **Số cây** (Thép cây DB) và **Số cuộn** (Thép cuộn WR).
 
 ---
 
@@ -16,37 +17,35 @@
    - **Thép Miền Nam** (Phú Mỹ, Thủ Đức, Biên Hòa, Nhà Bè)
    - **Tung Ho** (Phú Mỹ)
    - **Vina Kyoei** (Phú Mỹ)
-
-2. **Chọn Đường Kính Thép Thanh Vằn (Chiều dài chuẩn 11.7m)**:
-   - D10, D12, D14, D16, D18, D20, D22, D25, D28, D32, D36.
-   - Tự động khóa các kích cỡ mà nhà máy không đóng bó.
-
-3. **Tính Toán 2 Chiều Linh Hoạt**:
-   - **Chiều 1**: Nhập Tổng số cây $\rightarrow$ Tự động tính ra **Số bó chẵn + Số cây lẻ** (kèm số cây đóng đai nguyên bó).
-   - **Chiều 2**: Nhập Số bó chẵn + Số cây lẻ $\rightarrow$ Tự động tính ra **Tổng số cây**.
-
-4. **Phiếu Cân Xe / Chuyến Xe Nhiều Chủng Loại**:
-   - Cho phép thêm nhiều loại thép trên 1 chuyến xe (D10 + D14 + D20...).
-   - Tự động cộng dồn tổng số cây, tổng số bó, tổng cây lẻ và tổng tải trọng hàng trên xe.
+2. **Chọn Đường Kính Thép Thanh Vằn (11.7m)**: D10 đến D36.
+3. **Tính Toán 2 Chiều**: Nhập Tổng số cây $\leftrightarrow$ Số bó chẵn + Số cây lẻ theo barem thực tế của nhà máy.
+4. **Phiếu Cân Xe Chuyến**: Cộng dồn nhiều chủng loại thép trên 1 chuyến xe.
 
 ---
 
-### 🌐 TAB 2: Quy Đổi Barem Quốc Tế (`klm_qte` ➔ Cây / Cuộn)
+### 📊 TAB 2: Tính Bó Barem Quốc Tế (BRQT) - Nằm Ở Giữa
+1. **Quy Cách Bó Kết Hợp Barem Quốc Tế**:
+   - Vừa áp dụng quy chuẩn đóng bó nguyên đai của 6 nhà sản xuất (ví dụ: Miền Nam D14 đóng $180\,\text{cây/bó}$, Hòa Phát $222\,\text{cây/bó}$...).
+   - Vừa áp dụng tỷ lệ chuyển đổi khối lượng chuẩn **Barem Quốc Tế / TCVN** (ví dụ: D14 = $1.21 \times 11.7 = \mathbf{14.1570\,\text{kg/cây}}$).
+2. **Tính Toán Linh Hoạt 3 Chiều**:
+   - **Chiều 1 (Khối lượng ➔ Bó + Lẻ)**: Nhập số Kg/Tấn (tồn kho kế toán hoặc phiếu cân xe) $\rightarrow$ Tự động tính ra **Số cây** và quy đổi thành **Số bó chẵn + Cây lẻ** (Ví dụ: $25,043.73\,\text{kg}$ D14 Miền Nam $\rightarrow$ $1,769\,\text{cây} = \mathbf{9\,\text{bó} + 149\,\text{cây}}$).
+   - **Chiều 2 (Số cây ➔ Bó + Lẻ + Kg)**: Nhập tổng số cây $\rightarrow$ Ra số bó chẵn + cây lẻ + khối lượng tính theo Barem Quốc Tế.
+   - **Chiều 3 (Bó + Lẻ ➔ Tổng cây + Kg)**: Nhập số bó chẵn và cây lẻ $\rightarrow$ Ra tổng số cây và tổng khối lượng Barem Quốc Tế.
+3. **Phiếu Cân Xe / Chuyến Hàng Barem QT**:
+   - Bảng tổng hợp nhiều mặt hàng quy chuẩn Barem Quốc Tế, sao chép kết quả gửi Zalo nhanh chóng.
+
+---
+
+### 🌐 TAB 3: Quy Đổi Barem Quốc Tế (`klm_qte` ➔ Cây / Cuộn)
 1. **Thép Cây / Thanh Vằn (`DB`)**:
    - Dải đường kính: **D10 đến D40** với các giá trị `klm_qte` chuẩn TCVN ($0.617 - 9.860\,\text{kg/m}$).
-   - **Quy đổi 2 chiều**:
-     - Nhập Khối Lượng (Kg/Tấn) $\rightarrow$ Tính ra **Số cây chẵn** + **Khối lượng dư lẻ** (kg) và Tổng mét dài.
-     - Nhập Số Cây $\rightarrow$ Tính ra **Tổng khối lượng** (Kg và Tấn) theo chuẩn barem quốc tế.
-   - Hỗ trợ tùy chỉnh chiều dài cây (mặc định $11.7\,\text{m}$, linh hoạt cho hàng $6\,\text{m}$, $12\,\text{m}$).
-
+   - Nhập Khối Lượng (Kg/Tấn) $\leftrightarrow$ Số cây chẵn + dư lẻ và Tổng mét dài.
+   - Cho phép tùy chỉnh chiều dài cây (mặc định $11.7\,\text{m}$, linh hoạt cho hàng $6\,\text{m}$, $12\,\text{m}$).
 2. **Thép Cuộn (`WR` - Wire Rod)**:
    - Dải quy cách: **D6, D6.5, D8, D8.5, D10, D12** với `klm_qte` chuẩn ($0.222 - 0.888\,\text{kg/m}$).
-   - **Quy đổi 2 chiều**:
-     - Nhập Khối Lượng (Kg/Tấn) $\rightarrow$ Tính ra **Số cuộn chẵn** + **Khối lượng lẻ** (kg) và Tổng chiều dài cuộn thép (mét).
-     - Nhập Số Cuộn $\rightarrow$ Tính ra Khối lượng tương ứng theo định mức cuộn ($780\,\text{kg}$, $1,000\,\text{kg}$, $1,500\,\text{kg}$, $2,000\,\text{kg}$, $2,100\,\text{kg}$...).
-
+   - Nhập Khối Lượng (Kg/Tấn) $\leftrightarrow$ Số cuộn chẵn + dư lẻ và Tổng chiều dài cuộn thép (mét).
 3. **Sao Chép Nhanh Kết Quả**:
-   - 1 nút bấm sao chép kết quả định dạng rõ ràng để dán ngay vào Zalo gửi cho khách hàng, tài xế hoặc thủ kho.
+   - 1 nút bấm sao chép kết quả gửi Zalo cho khách hàng, tài xế hoặc thủ kho.
 
 ---
 

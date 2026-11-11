@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Phần Mềm Tính Bó & Cây Lẻ Thép Xây Dựng</title>
-  <link rel="stylesheet" href="css/style.css?v=1.3">
+  <link rel="stylesheet" href="css/style.css?v=1.4">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏗️</text></svg>">
 </head>
 <body>
@@ -16,15 +16,19 @@
       <p>Hỗ trợ tính bó theo chuẩn 6 nhà máy & Quy đổi khối lượng theo Barem Quốc Tế (klm_qte)</p>
     </header>
 
-    <!-- Thanh Điều Hướng 2 Tab Chính -->
+    <!-- Thanh Điều Hướng 3 Tab Chính -->
     <nav class="main-nav-bar">
       <button type="button" class="main-nav-btn active" id="btn-tab-factory" data-target="tab-content-factory">
         <span class="nav-icon">📦</span>
-        <span>Tính Số Bó & Cây Lẻ (Barem Nhà Máy)</span>
+        <span>Tính Bó Barem Nhà Máy</span>
+      </button>
+      <button type="button" class="main-nav-btn" id="btn-tab-qte-bundle" data-target="tab-content-qte-bundle">
+        <span class="nav-icon">📊</span>
+        <span>Tính Bó Barem Quốc Tế</span>
       </button>
       <button type="button" class="main-nav-btn" id="btn-tab-qte" data-target="tab-content-qte">
         <span class="nav-icon">🌐</span>
-        <span>Quy Đổi Barem Quốc Tế (klm_qte ➔ Cây / Cuộn)</span>
+        <span>Quy Đổi Barem Quốc Tế (klm_qte)</span>
       </button>
     </nav>
 
@@ -252,8 +256,209 @@
     </div>
     </div> <!-- Kết thúc TAB 1: Barem Nhà Máy -->
 
+    <!-- ============================================================== -->
+    <!-- TAB 2: TÍNH BÓ BAREM QUỐC TẾ (NẰM Ở GIỮA 2 TAB CŨ)             -->
+    <!-- ============================================================== -->
+    <div id="tab-content-qte-bundle" class="main-tab-content">
+      <!-- Bước 1: Chọn Nhà cung cấp để lấy quy cách đóng bó -->
+      <div class="card">
+        <div class="card-title">
+          <span class="step-num">1</span>
+          <span>Chọn Nhà Cung Cấp / Quy Cách Bó</span>
+        </div>
+        <div class="suppliers-grid" id="qte-b-supplier-radios">
+          <!-- Render bởi js/app.js -->
+        </div>
+      </div>
+
+      <!-- Bước 2: Chọn Chủng loại (Đường kính thép cây 11.7m) -->
+      <div class="card">
+        <div class="card-title">
+          <span class="step-num">2</span>
+          <span>Chọn Chủng Loại (Đường Kính Thép Cây 11.7m)</span>
+        </div>
+        <div class="diameters-container" id="qte-b-diameter-btns">
+          <!-- Render bởi js/app.js -->
+        </div>
+      </div>
+
+      <!-- Bước 3: Nhập Liệu & Quy Đổi Bó Barem Quốc Tế -->
+      <div class="card">
+        <div class="card-title">
+          <span class="step-num">3</span>
+          <span>Nhập Dữ Liệu & Quy Đổi Bó (Chuẩn Barem Quốc Tế)</span>
+        </div>
+
+        <!-- 3 Chế độ chuyển đổi -->
+        <div class="mode-tabs">
+          <button type="button" class="mode-tab active" id="qte-b-tab-w-to-bundle" data-mode="weight_to_bundle">
+            ⚖️ Nhập Khối Lượng (Kg/Tấn) ➔ Ra Bó & Cây Lẻ
+          </button>
+          <button type="button" class="mode-tab" id="qte-b-tab-bars-to-bundle" data-mode="bars_to_bundle">
+            📐 Nhập Số Cây ➔ Ra Bó & Cây Lẻ
+          </button>
+          <button type="button" class="mode-tab" id="qte-b-tab-bundle-to-bars" data-mode="bundle_to_bars">
+            🔄 Nhập Bó & Cây Lẻ ➔ Ra Tổng Số Cây
+          </button>
+        </div>
+
+        <!-- Banner thông số quy cách hiện tại -->
+        <div class="spec-info-banner" id="qte-b-spec-banner">
+          Đang tải thông số quy chuẩn quốc tế...
+        </div>
+
+        <!-- Form 1: Từ Khối Lượng ra Bó & Cây Lẻ -->
+        <div id="qte-b-sec-weight-to-bundle">
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label class="form-label" for="qte-b-input-weight" style="margin-bottom: 0;">
+                Nhập Khối Lượng Cân Xe / Tồn Kho Kế Toán:
+              </label>
+              <div class="unit-switch-group">
+                <button type="button" class="unit-switch-btn active" id="qte-b-unit-kg" data-unit="kg">Kg</button>
+                <button type="button" class="unit-switch-btn" id="qte-b-unit-ton" data-unit="ton">Tấn</button>
+              </div>
+            </div>
+            <input type="number" id="qte-b-input-weight" class="input-number" placeholder="Ví dụ: 25043.73" min="0" value="25043.73">
+            <div class="quick-number-btns">
+              <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center; margin-right: 4px;">Cộng nhanh:</span>
+              <button type="button" class="quick-btn qte-b-quick-w" data-val="500">+500 kg</button>
+              <button type="button" class="quick-btn qte-b-quick-w" data-val="1000">+1 tấn</button>
+              <button type="button" class="quick-btn qte-b-quick-w" data-val="5000">+5 tấn</button>
+              <button type="button" class="quick-btn qte-b-quick-w" data-val="10000">+10 tấn</button>
+              <button type="button" class="quick-btn qte-b-quick-w" data-val="25000">+25 tấn</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form 2: Từ Số Cây ra Bó -->
+        <div id="qte-b-sec-bars-to-bundle" style="display: none;">
+          <div class="form-group">
+            <label class="form-label" for="qte-b-input-bars">Nhập Tổng Số Cây Thép:</label>
+            <input type="number" id="qte-b-input-bars" class="input-number" placeholder="Ví dụ: 1769" min="0" value="1769">
+            <div class="quick-number-btns">
+              <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center; margin-right: 4px;">Cộng nhanh:</span>
+              <button type="button" class="quick-btn qte-b-quick-bars" data-val="50">+50</button>
+              <button type="button" class="quick-btn qte-b-quick-bars" data-val="100">+100</button>
+              <button type="button" class="quick-btn qte-b-quick-bars" data-val="200">+200</button>
+              <button type="button" class="quick-btn qte-b-quick-bars" data-val="500">+500</button>
+              <button type="button" class="quick-btn qte-b-quick-bars" data-val="1000">+1000</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form 3: Từ Bó + Lẻ ra Số Cây -->
+        <div id="qte-b-sec-bundle-to-bars" style="display: none;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label" for="qte-b-input-bundles">Số Bó Chẵn:</label>
+              <input type="number" id="qte-b-input-bundles" class="input-number" placeholder="0" min="0" value="9">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="qte-b-input-odd-bars">Số Cây Lẻ:</label>
+              <input type="number" id="qte-b-input-odd-bars" class="input-number" placeholder="0" min="0" value="149">
+            </div>
+          </div>
+        </div>
+
+        <!-- Result Card -->
+        <div class="result-box">
+          <div class="result-main">
+            <div>
+              <div class="result-title">Kết Quả Quy Đổi (Barem Quốc Tế)</div>
+              <div class="result-highlight" id="qte-b-result-highlight">0 bó + 0</div>
+            </div>
+            <button type="button" class="btn btn-primary" id="qte-b-btn-copy-result" title="Sao chép kết quả để gửi Zalo">
+              📋 Sao Chép Kết Quả
+            </button>
+          </div>
+
+          <div class="result-grid">
+            <div class="result-item">
+              <div class="result-item-label">Số Cây Bó Chẵn</div>
+              <div class="result-item-val" id="qte-b-res-full-bundles-val">0 bó</div>
+              <div class="result-item-sub">Đóng đai nguyên bó</div>
+            </div>
+            <div class="result-item">
+              <div class="result-item-label">Số Cây Lẻ Rời</div>
+              <div class="result-item-val" id="qte-b-res-odd-bars-val">0 cây</div>
+              <div class="result-item-sub" id="qte-b-res-odd-bars-sub">Cây lẻ ngoài bó</div>
+            </div>
+            <div class="result-item">
+              <div class="result-item-label">Tổng Số Cây</div>
+              <div class="result-item-val" id="qte-b-res-total-bars-val">0 cây</div>
+              <div class="result-item-sub" id="qte-b-res-total-bars-sub">Toàn bộ lô thép</div>
+            </div>
+            <div class="result-item">
+              <div class="result-item-label">Khối Lượng Barem Quốc Tế</div>
+              <div class="result-item-val" id="qte-b-res-est-weight-val">0 kg</div>
+              <div class="result-item-sub">Khối lượng chuẩn quốc tế</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thêm vào chuyến xe cân (Barem QT) -->
+        <div class="btn-group">
+          <button type="button" class="btn btn-success" id="qte-b-btn-add-to-vehicle" style="flex: 1;">
+            ➕ Thêm Vào Danh Sách Phiếu Cân Xe (Barem QT)
+          </button>
+        </div>
+      </div>
+
+      <!-- Bước 4: Bảng Tổng Hợp Chuyến Xe / Nhiều Loại Thép (Barem QT) -->
+      <div class="card">
+        <div class="card-title" style="justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="step-num">4</span>
+            <span>Bảng Tổng Hợp Chuyến Xe Barem QT (<span id="qte-b-vehicle-total-count">0</span> mặt hàng)</span>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" class="btn btn-secondary" id="qte-b-btn-copy-vehicle" style="padding: 6px 12px; font-size: 0.8rem;">
+              📋 Copy Cả Xe (Gửi Zalo)
+            </button>
+            <button type="button" class="btn btn-secondary" id="qte-b-btn-clear-vehicle" style="padding: 6px 12px; font-size: 0.8rem; color: #b91c1c;">
+              🗑️ Xóa Hết
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="vehicle-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Mặt Hàng</th>
+                <th>Tổng Cây</th>
+                <th>Số Bó Chẵn</th>
+                <th>Cây Lẻ</th>
+                <th>KL Barem QT</th>
+                <th>Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="qte-b-vehicle-table-body">
+              <tr>
+                <td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">
+                  Chưa có mặt hàng nào. Nhập số liệu ở trên và bấm "Thêm Vào Danh Sách Phiếu Cân Xe".
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr id="qte-b-vehicle-foot-row" style="display: none;">
+                <td colspan="2">TỔNG CỘNG XE (BAREM QT):</td>
+                <td id="qte-b-foot-total-bars">0</td>
+                <td id="qte-b-foot-total-bundles">0 bó</td>
+                <td id="qte-b-foot-total-odd">0 cây</td>
+                <td id="qte-b-foot-total-weight">0 kg</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </div> <!-- Kết thúc TAB 2: Tính Bó Barem Quốc Tế -->
+
     <!-- ========================================== -->
-    <!-- TAB 2: QUY ĐỔI BAREM QUỐC TẾ (klm_qte)   -->
+    <!-- TAB 3: QUY ĐỔI BAREM QUỐC TẾ (klm_qte)   -->
     <!-- ========================================== -->
     <div id="tab-content-qte" class="main-tab-content">
       <!-- Bước 1: Chọn Chủng Loại (Thép Cây DB / Thép Cuộn WR) & Quy Cách -->
@@ -426,7 +631,7 @@
           </table>
         </div>
       </div>
-    </div> <!-- Kết thúc TAB 2 -->
+    </div> <!-- Kết thúc TAB 3: Quy Đổi Barem Quốc Tế (Cây / Cuộn) -->
 
     <!-- Footer -->
     <footer>
@@ -438,7 +643,7 @@
   <div class="toast" id="toast">Đã thực hiện xong!</div>
 
   <!-- Scripts -->
-  <script src="js/data.js?v=1.3"></script>
-  <script src="js/app.js?v=1.3"></script>
+  <script src="js/data.js?v=1.4"></script>
+  <script src="js/app.js?v=1.4"></script>
 </body>
 </html>
