@@ -3,261 +3,277 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Phần Mềm Tính Bó & Cây Lẻ Thép Xây Dựng</title>
-  <link rel="stylesheet" href="css/style.css?v=1.6">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏗️</text></svg>">
+  <title>POVINA — Tính Bó &amp; Quy Đổi Barem Thép Xây Dựng</title>
+  <link rel="stylesheet" href="css/style.css?v=2.0">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f172a'/%3E%3Cpath d='M9 8h9.5a5.5 5.5 0 0 1 0 11H13v5H9V8zm4 3.5V15.5h5.2a2 2 0 0 0 0-4H13z' fill='%2338bdf8'/%3E%3C/svg%3E">
 </head>
 <body>
   <div class="container">
     <!-- Header -->
-    <header>
-      <div class="header-badge">Công Cụ Cân Xe & Quản Lý Kho Bãi POVINA</div>
-      <h1>Tính Số Bó & Quy Đổi Barem Thép</h1>
-      <p>Hỗ trợ tính bó theo chuẩn 6 nhà máy & Quy đổi khối lượng theo Barem Quốc Tế (klm_qte)</p>
+    <header class="app-header">
+      <div class="header-badge">POVINA — Quản Lý Kho &amp; Cân Xe</div>
+      <h1>Tính Số Bó &amp; Quy Đổi Barem Thép</h1>
+      <p>Chuẩn quy cách 6 nhà máy &amp; Quy đổi khối lượng theo Barem Quốc Tế (klm_qte)</p>
     </header>
 
     <!-- Thanh Điều Hướng 3 Tab Chính -->
-    <nav class="main-nav-bar">
+    <nav class="main-nav-bar" aria-label="Chế độ tính toán">
       <button type="button" class="main-nav-btn active" id="btn-tab-factory" data-target="tab-content-factory">
-        <span class="nav-icon">📦</span>
         <span>Tính Bó Barem Nhà Máy</span>
       </button>
       <button type="button" class="main-nav-btn" id="btn-tab-qte-bundle" data-target="tab-content-qte-bundle">
-        <span class="nav-icon">📊</span>
         <span>Tính Bó Barem Quốc Tế</span>
       </button>
       <button type="button" class="main-nav-btn" id="btn-tab-qte" data-target="tab-content-qte">
-        <span class="nav-icon">🌐</span>
         <span>Quy Đổi Barem Quốc Tế (klm_qte)</span>
       </button>
     </nav>
 
     <!-- ========================================== -->
-    <!-- TAB 1: BAREM NHÀ MÁY (GIỮ NGUYÊN 100%)    -->
+    <!-- TAB 1: BAREM NHÀ MÁY                       -->
     <!-- ========================================== -->
     <div id="tab-content-factory" class="main-tab-content active">
-    <!-- Step 1: Chọn Nhà cung cấp -->
-    <div class="card">
-      <div class="card-title">
-        <span class="step-num">1</span>
-        <span>Chọn Nhà Cung Cấp / Nhà Sản Xuất</span>
-      </div>
-      <div class="suppliers-grid" id="supplier-radios">
-        <!-- Radio buttons rendered by app.js -->
-      </div>
-    </div>
-
-    <!-- Step 2: Chọn Chủng loại & Đường kính -->
-    <div class="card">
-      <div class="card-title">
-        <span class="step-num">2</span>
-        <span>Chọn Chủng Loại (Đường Kính Thép Cây 11.7m)</span>
-      </div>
-      <div class="diameters-container" id="diameter-btns">
-        <!-- Diameter buttons rendered by app.js -->
-      </div>
-
-      <!-- Mác thép (nếu nhà máy có barem riêng giữa CB3 và CB4/CB5) -->
-      <div id="grade-selector-container" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-color); display: none;">
-        <span class="form-label">Mác thép (Cấp độ bền):</span>
-        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-          <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.9rem;">
-            <input type="radio" name="steel-grade" value="cb4_5" checked>
-            <span id="label-grade-cb4">CB4 / CB5</span>
-          </label>
-          <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.9rem;">
-            <input type="radio" name="steel-grade" value="cb3">
-            <span id="label-grade-cb3">CB3 / SD295 / GR40</span>
-          </label>
+      <!-- Bước 1: Chọn Nhà cung cấp -->
+      <div class="card">
+        <div class="card-title">
+          <span class="step-num">1</span>
+          <span>Chọn Nhà Cung Cấp / Nhà Sản Xuất</span>
+        </div>
+        <div class="suppliers-grid" id="supplier-radios">
+          <!-- Radio cards rendered by app.js -->
         </div>
       </div>
-    </div>
 
-    <!-- Step 3: Nhập liệu & Tính toán -->
-    <div class="card">
-      <div class="card-title">
-        <span class="step-num">3</span>
-        <span>Nhập Dữ Liệu & Quy Đổi</span>
-      </div>
+      <!-- Bước 2: Chọn Chủng loại & Đường kính -->
+      <div class="card">
+        <div class="card-title">
+          <span class="step-num">2</span>
+          <span>Chọn Chủng Loại (Đường Kính Thép Cây 11.7m)</span>
+        </div>
+        <div class="diameters-container" id="diameter-btns">
+          <!-- Diameter buttons rendered by app.js -->
+        </div>
 
-      <!-- Chuyển đổi chiều tính toán -->
-      <div class="mode-tabs">
-        <button type="button" class="mode-tab active" data-mode="bars_to_bundle">
-          📐 Nhập Số Cây ➔ Ra Số Bó + Cây Lẻ
-        </button>
-        <button type="button" class="mode-tab" data-mode="bundle_to_bars">
-          🔄 Nhập Số Bó & Cây Lẻ ➔ Ra Tổng Số Cây
-        </button>
-      </div>
-
-      <!-- Banner thông số quy cách hiện tại -->
-      <div class="spec-info-banner" id="spec-banner-text">
-        Đang tải thông số quy cách...
-      </div>
-
-      <!-- Form nhập 1: Từ Số Cây ra Bó -->
-      <div id="section-bars-to-bundle">
-        <div class="form-group">
-          <label class="form-label" for="input-bars">Nhập Tổng Số Cây Thép:</label>
-          <input type="number" id="input-bars" class="input-number" placeholder="Ví dụ: 1000" min="0" value="1000" autofocus>
-          <div class="quick-number-btns">
-            <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center; margin-right: 4px;">Cộng nhanh:</span>
-            <button type="button" class="quick-btn" data-val="50">+50</button>
-            <button type="button" class="quick-btn" data-val="100">+100</button>
-            <button type="button" class="quick-btn" data-val="200">+200</button>
-            <button type="button" class="quick-btn" data-val="500">+500</button>
-            <button type="button" class="quick-btn" data-val="1000">+1000</button>
+        <!-- Mác thép (nếu nhà máy có barem riêng giữa CB3 và CB4/CB5) -->
+        <div id="grade-selector-container" class="grade-selector-box" style="display: none;">
+          <span class="form-label">Mác thép (Cấp độ bền):</span>
+          <div class="grade-options">
+            <label class="grade-option">
+              <input type="radio" name="steel-grade" value="cb4_5" checked>
+              <span id="label-grade-cb4">CB4 / CB5</span>
+            </label>
+            <label class="grade-option">
+              <input type="radio" name="steel-grade" value="cb3">
+              <span id="label-grade-cb3">CB3 / SD295 / GR40</span>
+            </label>
           </div>
         </div>
       </div>
 
-      <!-- Form nhập 2: Từ Bó + Lẻ ra Số Cây -->
-      <div id="section-bundle-to-bars" style="display: none;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+      <!-- Bước 3: Nhập liệu & Tính toán -->
+      <div class="card">
+        <div class="card-title">
+          <span class="step-num">3</span>
+          <span>Nhập Dữ Liệu &amp; Quy Đổi</span>
+        </div>
+
+        <!-- Chuyển đổi chiều tính toán -->
+        <div class="mode-tabs">
+          <button type="button" class="mode-tab active" data-mode="bars_to_bundle">
+            Nhập Số Cây → Ra Số Bó &amp; Cây Lẻ
+          </button>
+          <button type="button" class="mode-tab" data-mode="bundle_to_bars">
+            Nhập Số Bó &amp; Cây Lẻ → Ra Tổng Số Cây
+          </button>
+        </div>
+
+        <!-- Banner thông số quy cách hiện tại -->
+        <div class="spec-info-banner" id="spec-banner-text">
+          Đang tải thông số quy cách...
+        </div>
+
+        <!-- Form nhập 1: Từ Số Cây ra Bó -->
+        <div id="section-bars-to-bundle">
           <div class="form-group">
-            <label class="form-label" for="input-bundles">Số Bó Chẵn:</label>
-            <input type="number" id="input-bundles" class="input-number" placeholder="0" min="0" value="2">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="input-odd-bars">Số Cây Lẻ:</label>
-            <input type="number" id="input-odd-bars" class="input-number" placeholder="0" min="0" value="120">
+            <label class="form-label" for="input-bars">Tổng Số Cây Thép:</label>
+            <input type="number" id="input-bars" class="input-number" placeholder="Ví dụ: 1000" min="0" value="1000" autofocus>
+            <div class="quick-number-btns">
+              <span class="quick-label">Cộng nhanh:</span>
+              <button type="button" class="quick-btn" data-val="50">+50</button>
+              <button type="button" class="quick-btn" data-val="100">+100</button>
+              <button type="button" class="quick-btn" data-val="200">+200</button>
+              <button type="button" class="quick-btn" data-val="500">+500</button>
+              <button type="button" class="quick-btn" data-val="1000">+1000</button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Result Card -->
-      <div class="result-box">
-        <div class="result-main">
-          <div>
-            <div class="result-title">Kết Quả Quy Đổi</div>
-            <div class="result-highlight" id="result-highlight">0 bó + 0</div>
+        <!-- Form nhập 2: Từ Bó + Lẻ ra Số Cây -->
+        <div id="section-bundle-to-bars" style="display: none;">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="input-bundles">Số Bó Chẵn:</label>
+              <input type="number" id="input-bundles" class="input-number" placeholder="0" min="0" value="2">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-odd-bars">Số Cây Lẻ:</label>
+              <input type="number" id="input-odd-bars" class="input-number" placeholder="0" min="0" value="120">
+            </div>
           </div>
-          <button type="button" class="btn btn-primary" id="btn-copy-result" title="Sao chép kết quả để gửi Zalo">
-            📋 Sao Chép Kết Quả
+        </div>
+
+        <!-- Result Card -->
+        <div class="result-box">
+          <div class="result-main">
+            <div>
+              <div class="result-title">Kết Quả Quy Đổi</div>
+              <div class="result-highlight" id="result-highlight">0 bó + 0</div>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-copy-result" title="Sao chép kết quả">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Sao Chép Kết Quả</span>
+            </button>
+          </div>
+
+          <div class="result-grid">
+            <div class="result-item">
+              <div class="result-item-label">Số Cây Bó Chẵn</div>
+              <div class="result-item-val" id="res-full-bundles-val">0 bó</div>
+              <div class="result-item-sub">Đóng đai nguyên bó</div>
+            </div>
+            <div class="result-item">
+              <div class="result-item-label">Số Cây Lẻ Rời</div>
+              <div class="result-item-val" id="res-odd-bars-val">0 cây</div>
+              <div class="result-item-sub">Cây lẻ ngoài bó</div>
+            </div>
+            <div class="result-item">
+              <div class="result-item-label">Tổng Số Cây</div>
+              <div class="result-item-val" id="res-total-bars-val">0 cây</div>
+              <div class="result-item-sub">Toàn bộ lô thép</div>
+            </div>
+            <div class="result-item">
+              <div class="result-item-label">Khối Lượng Ước Tính (Barem)</div>
+              <div class="result-item-val" id="res-est-weight-val">0 kg</div>
+              <div class="result-item-sub">Khối lượng lý thuyết</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Thêm vào chuyến xe cân -->
+        <div class="btn-group">
+          <button type="button" class="btn btn-success btn-block" id="btn-add-to-vehicle">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Thêm Vào Phiếu Cân Xe</span>
           </button>
         </div>
+      </div>
 
-        <div class="result-grid">
-          <div class="result-item">
-            <div class="result-item-label">Số Cây Bó Chẵn</div>
-            <div class="result-item-val" id="res-full-bundles-val">0 bó</div>
-            <div class="result-item-sub">Đóng đai nguyên bó</div>
+      <!-- Bước 4: Bảng Tổng Hợp Chuyến Xe / Nhiều Loại Thép -->
+      <div class="card">
+        <div class="card-title card-title-split">
+          <div class="card-title-group">
+            <span class="step-num">4</span>
+            <span>Bảng Tổng Hợp Chuyến Xe (<span id="vehicle-total-count">0</span> mặt hàng)</span>
           </div>
-          <div class="result-item">
-            <div class="result-item-label">Số Cây Lẻ Rời</div>
-            <div class="result-item-val" id="res-odd-bars-val">0 cây</div>
-            <div class="result-item-sub">Cây lẻ ngoài bó</div>
+          <div class="card-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-copy-vehicle">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Sao Chép Phiếu Xe</span>
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm btn-danger-ghost" id="btn-clear-vehicle">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+              </svg>
+              <span>Xóa Hết</span>
+            </button>
           </div>
-          <div class="result-item">
-            <div class="result-item-label">Tổng Số Cây</div>
-            <div class="result-item-val" id="res-total-bars-val">0 cây</div>
-            <div class="result-item-sub">Toàn bộ lô thép</div>
-          </div>
-          <div class="result-item">
-            <div class="result-item-label">Khối Lượng Ước Tính (Barem)</div>
-            <div class="result-item-val" id="res-est-weight-val">0 kg</div>
-            <div class="result-item-sub">Khối lượng lý thuyết</div>
-          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="vehicle-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Mặt Hàng</th>
+                <th>Tổng Cây</th>
+                <th>Số Bó Chẵn</th>
+                <th>Cây Lẻ</th>
+                <th>KL Barem</th>
+                <th>Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="vehicle-table-body">
+              <tr>
+                <td colspan="7" class="table-empty-cell">
+                  Chưa có mặt hàng nào. Nhập số cây ở trên và chọn "Thêm Vào Phiếu Cân Xe".
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr id="vehicle-foot-row" style="display: none;">
+                <td colspan="2">TỔNG CỘNG XE:</td>
+                <td id="foot-total-bars">0</td>
+                <td id="foot-total-bundles">0 bó</td>
+                <td id="foot-total-odd">0 cây</td>
+                <td id="foot-total-weight">0 kg</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </div>
 
-      <!-- Thêm vào chuyến xe cân -->
-      <div class="btn-group">
-        <button type="button" class="btn btn-success" id="btn-add-to-vehicle" style="flex: 1;">
-          ➕ Thêm Vào Danh Sách Phiếu Cân Xe
-        </button>
-      </div>
-    </div>
-
-    <!-- Step 4: Bảng Tổng Hợp Chuyến Xe / Nhiều Loại Thép -->
-    <div class="card">
-      <div class="card-title" style="justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="step-num">4</span>
-          <span>Bảng Tổng Hợp Chuyến Xe (<span id="vehicle-total-count">0</span> mặt hàng)</span>
+      <!-- Bảng tra tham chiếu quy cách nhà máy -->
+      <div class="card ref-card">
+        <div class="card-title">
+          <span>Bảng Tra Quy Cách Cây/Bó Các Nhà Máy (Thép 11.7m)</span>
         </div>
-        <div style="display: flex; gap: 8px;">
-          <button type="button" class="btn btn-secondary" id="btn-copy-vehicle" style="padding: 6px 12px; font-size: 0.8rem;">
-            📋 Copy Cả Xe (Gửi Zalo)
-          </button>
-          <button type="button" class="btn btn-secondary" id="btn-clear-vehicle" style="padding: 6px 12px; font-size: 0.8rem; color: #b91c1c;">
-            🗑️ Xóa Hết
-          </button>
+        <div class="table-responsive">
+          <table class="vehicle-table ref-table">
+            <thead>
+              <tr>
+                <th class="col-left">Chủng loại</th>
+                <th>Hòa Phát</th>
+                <th>VAS (Việt Mỹ)</th>
+                <th>Pomina</th>
+                <th>Miền Nam</th>
+                <th>Tung Ho</th>
+                <th>Vina Kyoei</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="col-spec">D10</td><td>440</td><td>440</td><td>230</td><td>350</td><td>300</td><td>300</td></tr>
+              <tr><td class="col-spec">D12</td><td>320</td><td>320</td><td>200</td><td>250</td><td>260</td><td>260</td></tr>
+              <tr><td class="col-spec">D14</td><td>222</td><td>222</td><td>140</td><td>180</td><td>190</td><td>190</td></tr>
+              <tr><td class="col-spec">D16</td><td>180</td><td>180</td><td>120</td><td>140</td><td>150</td><td>150</td></tr>
+              <tr><td class="col-spec">D18</td><td>138</td><td>138</td><td>100</td><td>110</td><td>115</td><td>115</td></tr>
+              <tr><td class="col-spec">D20</td><td>114</td><td>114</td><td>80</td><td>90</td><td>95</td><td>95</td></tr>
+              <tr><td class="col-spec">D22</td><td>90</td><td>90</td><td>60</td><td>70</td><td>76</td><td>76</td></tr>
+              <tr><td class="col-spec">D25</td><td>72</td><td>72</td><td>50</td><td>58</td><td>60</td><td>60</td></tr>
+              <tr><td class="col-spec">D28</td><td>57</td><td>57</td><td>40</td><td>45</td><td>48</td><td>48</td></tr>
+              <tr><td class="col-spec">D32</td><td>45</td><td>45</td><td>30</td><td>35</td><td>36</td><td>36</td></tr>
+              <tr><td class="col-spec">D36</td><td>35</td><td>-</td><td>-</td><td>27</td><td>-</td><td>-</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <div class="table-responsive">
-        <table class="vehicle-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Mặt Hàng</th>
-              <th>Tổng Cây</th>
-              <th>Số Bó Chẵn</th>
-              <th>Cây Lẻ</th>
-              <th>KL Barem</th>
-              <th>Thao Tác</th>
-            </tr>
-          </thead>
-          <tbody id="vehicle-table-body">
-            <tr>
-              <td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">
-                Chưa có mặt hàng nào. Nhập số cây ở trên và bấm "Thêm Vào Danh Sách Phiếu Cân Xe".
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr id="vehicle-foot-row" style="display: none;">
-              <td colspan="2">TỔNG CỘNG XE:</td>
-              <td id="foot-total-bars">0</td>
-              <td id="foot-total-bundles">0 bó</td>
-              <td id="foot-total-odd">0 cây</td>
-              <td id="foot-total-weight">0 kg</td>
-              <td></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
-
-    <!-- Thông tin Bảng tra tham chiếu -->
-    <div class="card" style="font-size: 0.85rem; color: var(--text-muted);">
-      <div class="card-title" style="font-size: 0.95rem;">
-        <span>📖 Bảng Tra Quy Cách Cây/Bó Các Nhà Máy (Thép 11.7m)</span>
-      </div>
-      <div class="table-responsive">
-        <table class="vehicle-table" style="font-size: 0.8rem; text-align: center;">
-          <thead>
-            <tr>
-              <th style="text-align: left;">Chủng loại</th>
-              <th>Hòa Phát</th>
-              <th>VAS (Việt Mỹ)</th>
-              <th>Pomina</th>
-              <th>Miền Nam</th>
-              <th>Tung Ho</th>
-              <th>Vina Kyoei</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td style="text-align: left; font-weight: bold;">D10</td><td>440</td><td>440</td><td>230</td><td>350</td><td>300</td><td>300</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D12</td><td>320</td><td>320</td><td>200</td><td>250</td><td>260</td><td>260</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D14</td><td>222</td><td>222</td><td>140</td><td>180</td><td>190</td><td>190</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D16</td><td>180</td><td>180</td><td>120</td><td>140</td><td>150</td><td>150</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D18</td><td>138</td><td>138</td><td>100</td><td>110</td><td>115</td><td>115</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D20</td><td>114</td><td>114</td><td>80</td><td>90</td><td>95</td><td>95</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D22</td><td>90</td><td>90</td><td>60</td><td>70</td><td>76</td><td>76</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D25</td><td>72</td><td>72</td><td>50</td><td>58</td><td>60</td><td>60</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D28</td><td>57</td><td>57</td><td>40</td><td>45</td><td>48</td><td>48</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D32</td><td>45</td><td>45</td><td>30</td><td>35</td><td>36</td><td>36</td></tr>
-            <tr><td style="text-align: left; font-weight: bold;">D36</td><td>35</td><td>-</td><td>-</td><td>27</td><td>-</td><td>-</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
     </div> <!-- Kết thúc TAB 1: Barem Nhà Máy -->
 
     <!-- ============================================================== -->
-    <!-- TAB 2: TÍNH BÓ BAREM QUỐC TẾ (NẰM Ở GIỮA 2 TAB CŨ)             -->
+    <!-- TAB 2: TÍNH BÓ BAREM QUỐC TẾ                                   -->
     <!-- ============================================================== -->
     <div id="tab-content-qte-bundle" class="main-tab-content">
       <!-- Bước 1: Chọn Nhà cung cấp để lấy quy cách đóng bó -->
@@ -286,19 +302,19 @@
       <div class="card">
         <div class="card-title">
           <span class="step-num">3</span>
-          <span>Nhập Dữ Liệu & Quy Đổi Bó (Chuẩn Barem Quốc Tế)</span>
+          <span>Nhập Dữ Liệu &amp; Quy Đổi Bó (Chuẩn Barem Quốc Tế)</span>
         </div>
 
         <!-- 3 Chế độ chuyển đổi -->
         <div class="mode-tabs">
           <button type="button" class="mode-tab active" id="qte-b-tab-w-to-bundle" data-mode="weight_to_bundle">
-            ⚖️ Nhập Khối Lượng (Kg/Tấn) ➔ Ra Bó & Cây Lẻ
+            Nhập Khối Lượng (Kg/Tấn) → Ra Bó &amp; Cây Lẻ
           </button>
           <button type="button" class="mode-tab" id="qte-b-tab-bars-to-bundle" data-mode="bars_to_bundle">
-            📐 Nhập Số Cây ➔ Ra Bó & Cây Lẻ
+            Nhập Số Cây → Ra Bó &amp; Cây Lẻ
           </button>
           <button type="button" class="mode-tab" id="qte-b-tab-bundle-to-bars" data-mode="bundle_to_bars">
-            🔄 Nhập Bó & Cây Lẻ ➔ Ra Tổng Số Cây
+            Nhập Bó &amp; Cây Lẻ → Ra Tổng Số Cây
           </button>
         </div>
 
@@ -310,9 +326,9 @@
         <!-- Form 1: Từ Khối Lượng ra Bó & Cây Lẻ -->
         <div id="qte-b-sec-weight-to-bundle">
           <div class="form-group">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label class="form-label" for="qte-b-input-weight" style="margin-bottom: 0;">
-                Nhập Khối Lượng Cân Xe / Tồn Kho Kế Toán:
+            <div class="form-label-row">
+              <label class="form-label" for="qte-b-input-weight">
+                Khối Lượng Cân Xe / Tồn Kho Kế Toán:
               </label>
               <div class="unit-switch-group">
                 <button type="button" class="unit-switch-btn active" id="qte-b-unit-kg" data-unit="kg">Kg</button>
@@ -321,7 +337,7 @@
             </div>
             <input type="number" id="qte-b-input-weight" class="input-number" placeholder="Ví dụ: 25043.73" min="0" value="25043.73">
             <div class="quick-number-btns">
-              <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center; margin-right: 4px;">Cộng nhanh:</span>
+              <span class="quick-label">Cộng nhanh:</span>
               <button type="button" class="quick-btn qte-b-quick-w" data-val="500">+500 kg</button>
               <button type="button" class="quick-btn qte-b-quick-w" data-val="1000">+1 tấn</button>
               <button type="button" class="quick-btn qte-b-quick-w" data-val="5000">+5 tấn</button>
@@ -334,10 +350,10 @@
         <!-- Form 2: Từ Số Cây ra Bó -->
         <div id="qte-b-sec-bars-to-bundle" style="display: none;">
           <div class="form-group">
-            <label class="form-label" for="qte-b-input-bars">Nhập Tổng Số Cây Thép:</label>
+            <label class="form-label" for="qte-b-input-bars">Tổng Số Cây Thép:</label>
             <input type="number" id="qte-b-input-bars" class="input-number" placeholder="Ví dụ: 1769" min="0" value="1769">
             <div class="quick-number-btns">
-              <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center; margin-right: 4px;">Cộng nhanh:</span>
+              <span class="quick-label">Cộng nhanh:</span>
               <button type="button" class="quick-btn qte-b-quick-bars" data-val="50">+50</button>
               <button type="button" class="quick-btn qte-b-quick-bars" data-val="100">+100</button>
               <button type="button" class="quick-btn qte-b-quick-bars" data-val="200">+200</button>
@@ -349,7 +365,7 @@
 
         <!-- Form 3: Từ Bó + Lẻ ra Số Cây -->
         <div id="qte-b-sec-bundle-to-bars" style="display: none;">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label" for="qte-b-input-bundles">Số Bó Chẵn:</label>
               <input type="number" id="qte-b-input-bundles" class="input-number" placeholder="0" min="0" value="9">
@@ -368,8 +384,12 @@
               <div class="result-title">Kết Quả Quy Đổi (Barem Quốc Tế)</div>
               <div class="result-highlight" id="qte-b-result-highlight">0 bó + 0</div>
             </div>
-            <button type="button" class="btn btn-primary" id="qte-b-btn-copy-result" title="Sao chép kết quả để gửi Zalo">
-              📋 Sao Chép Kết Quả
+            <button type="button" class="btn btn-primary" id="qte-b-btn-copy-result" title="Sao chép kết quả">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Sao Chép Kết Quả</span>
             </button>
           </div>
 
@@ -399,25 +419,40 @@
 
         <!-- Thêm vào chuyến xe cân (Barem QT) -->
         <div class="btn-group">
-          <button type="button" class="btn btn-success" id="qte-b-btn-add-to-vehicle" style="flex: 1;">
-            ➕ Thêm Vào Danh Sách Phiếu Cân Xe (Barem QT)
+          <button type="button" class="btn btn-success btn-block" id="qte-b-btn-add-to-vehicle">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>Thêm Vào Phiếu Cân Xe (Barem QT)</span>
           </button>
         </div>
       </div>
 
       <!-- Bước 4: Bảng Tổng Hợp Chuyến Xe / Nhiều Loại Thép (Barem QT) -->
       <div class="card">
-        <div class="card-title" style="justify-content: space-between;">
-          <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="card-title card-title-split">
+          <div class="card-title-group">
             <span class="step-num">4</span>
             <span>Bảng Tổng Hợp Chuyến Xe Barem QT (<span id="qte-b-vehicle-total-count">0</span> mặt hàng)</span>
           </div>
-          <div style="display: flex; gap: 8px;">
-            <button type="button" class="btn btn-secondary" id="qte-b-btn-copy-vehicle" style="padding: 6px 12px; font-size: 0.8rem;">
-              📋 Copy Cả Xe (Gửi Zalo)
+          <div class="card-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="qte-b-btn-copy-vehicle">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Sao Chép Phiếu Xe</span>
             </button>
-            <button type="button" class="btn btn-secondary" id="qte-b-btn-clear-vehicle" style="padding: 6px 12px; font-size: 0.8rem; color: #b91c1c;">
-              🗑️ Xóa Hết
+            <button type="button" class="btn btn-secondary btn-sm btn-danger-ghost" id="qte-b-btn-clear-vehicle">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                <path d="M10 11v6"></path>
+                <path d="M14 11v6"></path>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+              </svg>
+              <span>Xóa Hết</span>
             </button>
           </div>
         </div>
@@ -437,8 +472,8 @@
             </thead>
             <tbody id="qte-b-vehicle-table-body">
               <tr>
-                <td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">
-                  Chưa có mặt hàng nào. Nhập số liệu ở trên và bấm "Thêm Vào Danh Sách Phiếu Cân Xe".
+                <td colspan="7" class="table-empty-cell">
+                  Chưa có mặt hàng nào. Nhập số liệu ở trên và chọn "Thêm Vào Phiếu Cân Xe".
                 </td>
               </tr>
             </tbody>
@@ -465,16 +500,16 @@
       <div class="card">
         <div class="card-title">
           <span class="step-num">1</span>
-          <span>Chọn Nhóm Hàng & Đường Kính</span>
+          <span>Chọn Nhóm Hàng &amp; Đường Kính</span>
         </div>
 
         <!-- Nhóm hàng: Thép Cây hoặc Thép Cuộn -->
         <div class="category-pills">
           <button type="button" class="cat-pill active" id="cat-pill-db" data-category="DB">
-            <span>🏗️ Thép Cây / Thanh Vằn (DB)</span>
+            <span>Thép Cây / Thanh Vằn (DB)</span>
           </button>
           <button type="button" class="cat-pill" id="cat-pill-wr" data-category="WR">
-            <span>🌀 Thép Cuộn (WR - Wire Rod)</span>
+            <span>Thép Cuộn (WR - Wire Rod)</span>
           </button>
         </div>
 
@@ -494,16 +529,16 @@
       <div class="card">
         <div class="card-title">
           <span class="step-num">2</span>
-          <span>Nhập Dữ Liệu & Quy Đổi Barem Quốc Tế (klm_qte)</span>
+          <span>Nhập Dữ Liệu &amp; Quy Đổi Barem Quốc Tế (klm_qte)</span>
         </div>
 
         <!-- Tab chuyển chiều tính toán -->
         <div class="mode-tabs">
           <button type="button" class="mode-tab active" id="qte-mode-w-to-qty" data-qte-mode="weight_to_qty">
-            ⚖️ Nhập Khối Lượng (Kg/Tấn) ➔ Ra Số Cây / Số Cuộn
+            Nhập Khối Lượng (Kg/Tấn) → Ra Số Cây / Số Cuộn
           </button>
           <button type="button" class="mode-tab" id="qte-mode-qty-to-w" data-qte-mode="qty_to_weight">
-            🔢 Nhập Số Cây / Số Cuộn ➔ Ra Khối Lượng (Kg/Tấn)
+            Nhập Số Cây / Số Cuộn → Ra Khối Lượng (Kg/Tấn)
           </button>
         </div>
 
@@ -515,9 +550,9 @@
         <!-- Form nhập 1: Nhập Khối lượng ra Số cây / Số cuộn -->
         <div id="qte-section-weight-to-qty">
           <div class="form-group">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <label class="form-label" for="qte-input-weight" style="margin-bottom: 0;">
-                Nhập Tổng Khối Lượng Cân Xe:
+            <div class="form-label-row">
+              <label class="form-label" for="qte-input-weight">
+                Tổng Khối Lượng Cân Xe:
               </label>
               <div class="unit-switch-group">
                 <button type="button" class="unit-switch-btn active" data-unit="kg">Kg</button>
@@ -526,7 +561,7 @@
             </div>
             <input type="number" id="qte-input-weight" class="input-number" placeholder="Ví dụ: 10000" min="0" value="10000">
             <div class="quick-number-btns">
-              <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center; margin-right: 4px;">Cộng nhanh:</span>
+              <span class="quick-label">Cộng nhanh:</span>
               <button type="button" class="quick-btn qte-quick-w-btn" data-val="500">+500 kg</button>
               <button type="button" class="quick-btn qte-quick-w-btn" data-val="1000">+1 tấn</button>
               <button type="button" class="quick-btn qte-quick-w-btn" data-val="5000">+5 tấn</button>
@@ -540,11 +575,11 @@
         <div id="qte-section-qty-to-weight" style="display: none;">
           <div class="form-group">
             <label class="form-label" for="qte-input-qty" id="qte-input-qty-label">
-              Nhập Số Cây Thép:
+              Số Cây Thép:
             </label>
             <input type="number" id="qte-input-qty" class="input-number" placeholder="Ví dụ: 1385" min="0" value="1385">
             <div class="quick-number-btns">
-              <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center; margin-right: 4px;">Cộng nhanh:</span>
+              <span class="quick-label">Cộng nhanh:</span>
               <button type="button" class="quick-btn qte-quick-qty-btn" data-val="10">+10</button>
               <button type="button" class="quick-btn qte-quick-qty-btn" data-val="50">+50</button>
               <button type="button" class="quick-btn qte-quick-qty-btn" data-val="100">+100</button>
@@ -561,8 +596,12 @@
               <div class="result-title">Kết Quả Quy Đổi Theo Barem Quốc Tế (klm_qte)</div>
               <div class="result-highlight" id="qte-result-highlight">0 cây</div>
             </div>
-            <button type="button" class="btn btn-primary" id="btn-copy-qte-result" title="Sao chép kết quả quy đổi để gửi Zalo">
-              📋 Sao Chép Kết Quả
+            <button type="button" class="btn btn-primary" id="btn-copy-qte-result" title="Sao chép kết quả quy đổi">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Sao Chép Kết Quả</span>
             </button>
           </div>
 
@@ -592,15 +631,15 @@
       </div>
 
       <!-- Bước 3: Bảng Tra klm_qte Quốc Tế / TCVN -->
-      <div class="card" style="font-size: 0.85rem; color: var(--text-muted);">
-        <div class="card-title" style="font-size: 0.95rem;">
-          <span>📖 Bảng Tra Giá Trị Barem Quốc Tế (klm_qte) Chuẩn TCVN</span>
+      <div class="card ref-card">
+        <div class="card-title">
+          <span>Bảng Tra Giá Trị Barem Quốc Tế (klm_qte) Chuẩn TCVN</span>
         </div>
         <div class="table-responsive">
-          <table class="vehicle-table" style="font-size: 0.8rem; text-align: center;">
+          <table class="vehicle-table ref-table">
             <thead>
               <tr>
-                <th style="text-align: left;">Quy cách</th>
+                <th class="col-left">Quy cách</th>
                 <th>Nhóm</th>
                 <th>klm_qte (kg/m)</th>
                 <th>Chiều dài chuẩn</th>
@@ -609,24 +648,24 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td style="text-align: left; font-weight: bold;">D10</td><td>Thép cây (DB)</td><td>0.617</td><td>11.7 m</td><td>7.219 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D12</td><td>Thép cây (DB)</td><td>0.888</td><td>11.7 m</td><td>10.390 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D14</td><td>Thép cây (DB)</td><td>1.210</td><td>11.7 m</td><td>14.157 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D16</td><td>Thép cây (DB)</td><td>1.580</td><td>11.7 m</td><td>18.486 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D18</td><td>Thép cây (DB)</td><td>2.000</td><td>11.7 m</td><td>23.400 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D20</td><td>Thép cây (DB)</td><td>2.470</td><td>11.7 m</td><td>28.899 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D22</td><td>Thép cây (DB)</td><td>2.980</td><td>11.7 m</td><td>34.866 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D25</td><td>Thép cây (DB)</td><td>3.850</td><td>11.7 m</td><td>45.045 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D28</td><td>Thép cây (DB)</td><td>4.830</td><td>11.7 m</td><td>56.511 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D32</td><td>Thép cây (DB)</td><td>6.310</td><td>11.7 m</td><td>73.827 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D36</td><td>Thép cây (DB)</td><td>7.990</td><td>11.7 m</td><td>93.483 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr><td style="text-align: left; font-weight: bold;">D40</td><td>Thép cây (DB)</td><td>9.860</td><td>11.7 m</td><td>115.362 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
-              <tr style="background: #f1f5f9;"><td style="text-align: left; font-weight: bold;">D6</td><td>Thép cuộn (WR)</td><td>0.222</td><td>Cuộn</td><td>~2,000 kg/cuộn (9,009 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
-              <tr style="background: #f1f5f9;"><td style="text-align: left; font-weight: bold;">D6.5</td><td>Thép cuộn (WR)</td><td>0.260</td><td>Cuộn</td><td>~2,000 kg/cuộn (7,692 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
-              <tr style="background: #f1f5f9;"><td style="text-align: left; font-weight: bold;">D8</td><td>Thép cuộn (WR)</td><td>0.395</td><td>Cuộn</td><td>~2,000 kg/cuộn (5,063 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
-              <tr style="background: #f1f5f9;"><td style="text-align: left; font-weight: bold;">D8.5</td><td>Thép cuộn (WR)</td><td>0.445</td><td>Cuộn</td><td>~2,000 kg/cuộn (4,494 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
-              <tr style="background: #f1f5f9;"><td style="text-align: left; font-weight: bold;">D10 cuộn</td><td>Thép cuộn (WR)</td><td>0.617</td><td>Cuộn</td><td>~2,000 kg/cuộn (3,241 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
-              <tr style="background: #f1f5f9;"><td style="text-align: left; font-weight: bold;">D12 cuộn</td><td>Thép cuộn (WR)</td><td>0.888</td><td>Cuộn</td><td>~2,000 kg/cuộn (2,252 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
+              <tr><td class="col-spec">D10</td><td>Thép cây (DB)</td><td>0.617</td><td>11.7 m</td><td>7.219 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D12</td><td>Thép cây (DB)</td><td>0.888</td><td>11.7 m</td><td>10.390 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D14</td><td>Thép cây (DB)</td><td>1.210</td><td>11.7 m</td><td>14.157 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D16</td><td>Thép cây (DB)</td><td>1.580</td><td>11.7 m</td><td>18.486 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D18</td><td>Thép cây (DB)</td><td>2.000</td><td>11.7 m</td><td>23.400 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D20</td><td>Thép cây (DB)</td><td>2.470</td><td>11.7 m</td><td>28.899 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D22</td><td>Thép cây (DB)</td><td>2.980</td><td>11.7 m</td><td>34.866 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D25</td><td>Thép cây (DB)</td><td>3.850</td><td>11.7 m</td><td>45.045 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D28</td><td>Thép cây (DB)</td><td>4.830</td><td>11.7 m</td><td>56.511 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D32</td><td>Thép cây (DB)</td><td>6.310</td><td>11.7 m</td><td>73.827 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D36</td><td>Thép cây (DB)</td><td>7.990</td><td>11.7 m</td><td>93.483 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr><td class="col-spec">D40</td><td>Thép cây (DB)</td><td>9.860</td><td>11.7 m</td><td>115.362 kg/cây</td><td>Tiêu chuẩn TCVN 1651-2</td></tr>
+              <tr class="row-group-alt"><td class="col-spec">D6</td><td>Thép cuộn (WR)</td><td>0.222</td><td>Cuộn</td><td>~2,000 kg/cuộn (9,009 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
+              <tr class="row-group-alt"><td class="col-spec">D6.5</td><td>Thép cuộn (WR)</td><td>0.260</td><td>Cuộn</td><td>~2,000 kg/cuộn (7,692 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
+              <tr class="row-group-alt"><td class="col-spec">D8</td><td>Thép cuộn (WR)</td><td>0.395</td><td>Cuộn</td><td>~2,000 kg/cuộn (5,063 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
+              <tr class="row-group-alt"><td class="col-spec">D8.5</td><td>Thép cuộn (WR)</td><td>0.445</td><td>Cuộn</td><td>~2,000 kg/cuộn (4,494 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
+              <tr class="row-group-alt"><td class="col-spec">D10 cuộn</td><td>Thép cuộn (WR)</td><td>0.617</td><td>Cuộn</td><td>~2,000 kg/cuộn (3,241 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
+              <tr class="row-group-alt"><td class="col-spec">D12 cuộn</td><td>Thép cuộn (WR)</td><td>0.888</td><td>Cuộn</td><td>~2,000 kg/cuộn (2,252 m)</td><td>Tiêu chuẩn TCVN 1651-1</td></tr>
             </tbody>
           </table>
         </div>
@@ -634,16 +673,16 @@
     </div> <!-- Kết thúc TAB 3: Quy Đổi Barem Quốc Tế (Cây / Cuộn) -->
 
     <!-- Footer -->
-    <footer>
-      Dự án Công Cụ Tính Bó Thép POVINA &copy; 2026. Sẵn sàng triển khai trên GitHub Pages.
+    <footer class="app-footer">
+      Hệ Thống Tính Bó &amp; Quy Đổi Barem Thép POVINA &copy; 2026
     </footer>
   </div>
 
   <!-- Toast Notification -->
-  <div class="toast" id="toast">Đã thực hiện xong!</div>
+  <div class="toast" id="toast">Đã thực hiện thành công</div>
 
   <!-- Scripts -->
-  <script src="js/data.js?v=1.6"></script>
-  <script src="js/app.js?v=1.6"></script>
+  <script src="js/data.js?v=2.0"></script>
+  <script src="js/app.js?v=2.0"></script>
 </body>
 </html>

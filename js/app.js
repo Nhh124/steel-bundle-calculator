@@ -205,7 +205,7 @@ function setupEventListeners() {
     if (confirm("Bạn có chắc chắn muốn xóa toàn bộ danh sách chuyến xe?")) {
       vehicleItems = [];
       renderVehicleTable();
-      showToast("Đã xóa danh sách chuyến xe!");
+      showToast("Đã xóa danh sách chuyến xe.");
     }
   });
 }
@@ -301,7 +301,7 @@ function copyCurrentResult() {
   navigator.clipboard.writeText(resultText).then(() => {
     showToast(`Đã sao chép: "${resultText}"`);
   }).catch(() => {
-    showToast("Không thể sao chép tự động, vui lòng copy thủ công!");
+    showToast("Không thể sao chép tự động, vui lòng sao chép thủ công.");
   });
 }
 
@@ -330,7 +330,7 @@ function addToVehicleTrip() {
   }
 
   if (totalBars <= 0) {
-    showToast("Vui lòng nhập số cây lớn hơn 0!");
+    showToast("Vui lòng nhập số cây lớn hơn 0.");
     return;
   }
 
@@ -350,7 +350,7 @@ function addToVehicleTrip() {
   });
 
   renderVehicleTable();
-  showToast(`Đã thêm ${currentDiameter} (${totalBars} cây) vào chuyến xe!`);
+  showToast(`Đã thêm ${currentDiameter} (${totalBars.toLocaleString()} cây) vào chuyến xe.`);
 }
 
 // Render Vehicle Trip Table
@@ -359,7 +359,7 @@ function renderVehicleTable() {
   vehicleTotalCount.textContent = vehicleItems.length;
 
   if (vehicleItems.length === 0) {
-    vehicleTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">Chưa có mặt hàng nào được thêm. Nhập số cây và bấm "Thêm vào danh sách chuyến xe".</td></tr>`;
+    vehicleTableBody.innerHTML = `<tr><td colspan="7" class="table-empty-cell">Chưa có mặt hàng nào. Nhập số cây ở trên và chọn "Thêm Vào Phiếu Cân Xe".</td></tr>`;
     document.getElementById("vehicle-foot-row").style.display = "none";
     return;
   }
@@ -400,13 +400,13 @@ function renderVehicleTable() {
 window.deleteVehicleItem = function(id) {
   vehicleItems = vehicleItems.filter(item => item.id !== id);
   renderVehicleTable();
-  showToast("Đã xóa mặt hàng khỏi danh sách!");
+  showToast("Đã xóa mặt hàng khỏi danh sách.");
 };
 
 // Copy full vehicle list for Zalo
 function copyVehicleList() {
   if (vehicleItems.length === 0) {
-    showToast("Danh sách chuyến xe đang trống!");
+    showToast("Danh sách chuyến xe đang trống.");
     return;
   }
 
@@ -429,9 +429,9 @@ function copyVehicleList() {
   text += `TỔNG BAREM: ${sumWeight.toLocaleString()} kg (~${(sumWeight/1000).toFixed(3)} tấn)`;
 
   navigator.clipboard.writeText(text).then(() => {
-    showToast("Đã sao chép danh sách chuyến xe!");
+    showToast("Đã sao chép danh sách chuyến xe.");
   }).catch(() => {
-    showToast("Không thể sao chép tự động!");
+    showToast("Không thể sao chép tự động.");
   });
 }
 
@@ -629,10 +629,10 @@ function setupQteBEventListeners() {
   document.getElementById("qte-b-btn-add-to-vehicle").addEventListener("click", addQteBToVehicleTrip);
   document.getElementById("qte-b-btn-copy-vehicle").addEventListener("click", copyQteBVehicleList);
   document.getElementById("qte-b-btn-clear-vehicle").addEventListener("click", () => {
-    if (confirm("Bạn có chắc chắn muốn xóa danh sách chuyến xe Barem QT?")) {
+    if (confirm("Bạn có chắc chắn muốn xóa toàn bộ danh sách chuyến xe Barem QT?")) {
       qteBVehicleItems = [];
       renderQteBVehicleTable();
-      showToast("Đã xóa danh sách chuyến xe Barem QT!");
+      showToast("Đã xóa danh sách chuyến xe Barem QT.");
     }
   });
 }
@@ -666,7 +666,7 @@ function calculateQteB() {
   const weightPerBar = klmQte * 11.7; // Tỷ lệ chuyển đổi: kg/cây (11.7m)
   const fullBundleWeight = bundleSize * weightPerBar;
 
-  specBanner.innerHTML = `Quy cách <strong>${supplier.name}</strong> - <strong>${qteBDiameter}</strong>: <strong>${bundleSize} cây/bó</strong> | Barem QT: <strong>${klmQte.toFixed(3)} kg/m</strong> ➔ Tỷ lệ: <strong>${weightPerBar.toFixed(4)} kg/cây</strong> | 1 Bó nguyên = <strong>${fullBundleWeight.toFixed(2)} kg</strong>`;
+  specBanner.innerHTML = `Quy cách <strong>${supplier.name}</strong> - <strong>${qteBDiameter}</strong>: <strong>${bundleSize} cây/bó</strong> | Barem QT: <strong>${klmQte.toFixed(3)} kg/m</strong> → Tỷ lệ: <strong>${weightPerBar.toFixed(4)} kg/cây</strong> | 1 Bó nguyên = <strong>${fullBundleWeight.toFixed(2)} kg</strong>`;
 
   let totalBars = 0;
   let fullBundles = 0;
@@ -767,13 +767,13 @@ function copyQteBResult() {
   text += `- Mặt hàng: ${supplier.name} ${qteBDiameter} (11.7m)\n`;
   text += `- Quy cách: ${bundleSize} cây/bó | Tỷ lệ Barem QT: ${weightPerBar.toFixed(4)} kg/cây\n`;
   text += `- Tổng số cây: ${totalBars.toLocaleString()} cây\n`;
-  text += `➔ QUY ĐỔI: ${resultShort}\n`;
+  text += `→ QUY ĐỔI: ${resultShort}\n`;
   text += `- Tổng KL Barem QT: ${totalWeightKg.toLocaleString()} kg (~${(totalWeightKg/1000).toFixed(3)} tấn)`;
 
   navigator.clipboard.writeText(text).then(() => {
     showToast(`Đã sao chép: "${resultShort}" (Barem QT)`);
   }).catch(() => {
-    showToast("Không thể sao chép tự động!");
+    showToast("Không thể sao chép tự động.");
   });
 }
 
@@ -811,7 +811,7 @@ function addQteBToVehicleTrip() {
   }
 
   if (totalBars <= 0) {
-    showToast("Vui lòng nhập số cây hoặc khối lượng lớn hơn 0!");
+    showToast("Vui lòng nhập số cây hoặc khối lượng lớn hơn 0.");
     return;
   }
 
@@ -831,7 +831,7 @@ function addQteBToVehicleTrip() {
   });
 
   renderQteBVehicleTable();
-  showToast(`Đã thêm ${qteBDiameter} (${totalBars} cây) vào chuyến xe Barem QT!`);
+  showToast(`Đã thêm ${qteBDiameter} (${totalBars.toLocaleString()} cây) vào chuyến xe Barem QT.`);
 }
 
 function renderQteBVehicleTable() {
@@ -843,7 +843,7 @@ function renderQteBVehicleTable() {
   totalCountEl.textContent = qteBVehicleItems.length;
 
   if (qteBVehicleItems.length === 0) {
-    tableBody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#94a3b8; padding:20px;">Chưa có mặt hàng nào. Nhập số liệu ở trên và bấm "Thêm Vào Danh Sách Phiếu Cân Xe".</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="7" class="table-empty-cell">Chưa có mặt hàng nào. Nhập số liệu ở trên và chọn "Thêm Vào Phiếu Cân Xe (Barem QT)".</td></tr>`;
     footRow.style.display = "none";
     return;
   }
@@ -883,12 +883,12 @@ function renderQteBVehicleTable() {
 window.deleteQteBVehicleItem = function(id) {
   qteBVehicleItems = qteBVehicleItems.filter(item => item.id !== id);
   renderQteBVehicleTable();
-  showToast("Đã xóa mặt hàng khỏi danh sách!");
+  showToast("Đã xóa mặt hàng khỏi danh sách.");
 };
 
 function copyQteBVehicleList() {
   if (qteBVehicleItems.length === 0) {
-    showToast("Danh sách chuyến xe đang trống!");
+    showToast("Danh sách chuyến xe đang trống.");
     return;
   }
 
@@ -911,9 +911,9 @@ function copyQteBVehicleList() {
   text += `TỔNG BAREM QT: ${sumWeight.toLocaleString()} kg (~${(sumWeight/1000).toFixed(3)} tấn)`;
 
   navigator.clipboard.writeText(text).then(() => {
-    showToast("Đã sao chép danh sách chuyến xe (Barem QT)!");
+    showToast("Đã sao chép danh sách chuyến xe (Barem QT).");
   }).catch(() => {
-    showToast("Không thể sao chép tự động!");
+    showToast("Không thể sao chép tự động.");
   });
 }
 
@@ -971,8 +971,8 @@ function initQteCalculator() {
     qteDiameter = "D10";
     document.getElementById("qte-diameter-label").textContent = "Chọn Đường Kính Thép Cây (DB):";
     document.getElementById("qte-input-qty-label").textContent = "Nhập Số Cây Thép:";
-    document.getElementById("qte-mode-w-to-qty").innerHTML = "⚖️ Nhập Khối Lượng ➔ Ra Số Cây";
-    document.getElementById("qte-mode-qty-to-w").innerHTML = "🔢 Nhập Số Cây ➔ Ra Khối Lượng";
+    document.getElementById("qte-mode-w-to-qty").textContent = "Nhập Khối Lượng (Kg/Tấn) → Ra Số Cây";
+    document.getElementById("qte-mode-qty-to-w").textContent = "Nhập Số Cây → Ra Khối Lượng (Kg/Tấn)";
     renderQteDiameters();
     renderQteParamBox();
     calculateQte();
@@ -985,8 +985,8 @@ function initQteCalculator() {
     qteDiameter = "D6";
     document.getElementById("qte-diameter-label").textContent = "Chọn Đường Kính Thép Cuộn (WR):";
     document.getElementById("qte-input-qty-label").textContent = "Nhập Số Cuộn Thép:";
-    document.getElementById("qte-mode-w-to-qty").innerHTML = "⚖️ Nhập Khối Lượng ➔ Ra Số Cuộn";
-    document.getElementById("qte-mode-qty-to-w").innerHTML = "🌀 Nhập Số Cuộn ➔ Ra Khối Lượng";
+    document.getElementById("qte-mode-w-to-qty").textContent = "Nhập Khối Lượng (Kg/Tấn) → Ra Số Cuộn";
+    document.getElementById("qte-mode-qty-to-w").textContent = "Nhập Số Cuộn → Ra Khối Lượng (Kg/Tấn)";
     renderQteDiameters();
     renderQteParamBox();
     calculateQte();
@@ -1097,7 +1097,7 @@ function renderQteParamBox() {
 
   if (qteCategory === "DB") {
     box.innerHTML = `
-      <span>📏 Chiều dài cây thép:</span>
+      <span>Chiều dài cây thép:</span>
       <input type="number" id="qte-bar-length" step="0.1" min="1" value="${qteBarLength}">
       <span>mét</span>
       <span style="color: #64748b; font-size: 0.8rem;">(Chuẩn xuất kho nhà máy: 11.7m; hàng ngắn: 6m, 12m)</span>
@@ -1109,10 +1109,10 @@ function renderQteParamBox() {
     });
   } else {
     box.innerHTML = `
-      <span>⚖️ Trọng lượng 1 cuộn ước tính:</span>
+      <span>Trọng lượng 1 cuộn ước tính:</span>
       <input type="number" id="qte-coil-weight" step="50" min="100" value="${qteCoilWeight}">
       <span>kg/cuộn</span>
-      <div style="display:flex; gap:6px; margin-left:auto;">
+      <div style="display:flex; gap:6px; margin-left:auto; flex-wrap:wrap;">
         <button type="button" class="quick-btn" onclick="setQteCoilWeight(780)">780 kg</button>
         <button type="button" class="quick-btn" onclick="setQteCoilWeight(1000)">1,000 kg</button>
         <button type="button" class="quick-btn" onclick="setQteCoilWeight(1500)">1,500 kg</button>
@@ -1160,7 +1160,7 @@ function calculateQte() {
   // TRƯỜNG HỢP 1: THÉP CÂY / THANH VẰN (DB)
   if (qteCategory === "DB") {
     const barWeightKg = klmQte * qteBarLength; // Trọng lượng 1 cây chuẩn quốc tế
-    banner.innerHTML = `Mặt hàng: <strong>${spec.name} (DB)</strong> | Chiều dài: <strong>${qteBarLength} m</strong> | Barem quốc tế (klm_qte): <strong>${klmQte.toFixed(3)} kg/m</strong> ➔ Trọng lượng 1 cây: <strong>${barWeightKg.toFixed(3)} kg/cây</strong>`;
+    banner.innerHTML = `Mặt hàng: <strong>${spec.name} (DB)</strong> | Chiều dài: <strong>${qteBarLength} m</strong> | Barem quốc tế (klm_qte): <strong>${klmQte.toFixed(3)} kg/m</strong> → Trọng lượng 1 cây: <strong>${barWeightKg.toFixed(3)} kg/cây</strong>`;
 
     resQtyLabel.textContent = "Số Cây Thép Quy Đổi";
     resExtraLabel.textContent = "Khối Lượng Dư Sau Quy Đổi";
@@ -1297,7 +1297,7 @@ function copyQteResult() {
       const totalMeters = totalKg / klmQte;
 
       text += `- Khối lượng cân: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
-      text += `➔ KẾT QUẢ: ${fullBars.toLocaleString()} cây (Dư ${remainKg.toFixed(1)} kg | Chính xác: ${exactBars.toFixed(2)} cây)\n`;
+      text += `→ KẾT QUẢ: ${fullBars.toLocaleString()} cây (Dư ${remainKg.toFixed(1)} kg | Chính xác: ${exactBars.toFixed(2)} cây)\n`;
       text += `- Tổng chiều dài: ~${Math.round(totalMeters).toLocaleString()} mét`;
     } else {
       let bars = Math.max(0, parseInt(inputQtyEl.value, 10) || 0);
@@ -1305,7 +1305,7 @@ function copyQteResult() {
       let totalMeters = bars * qteBarLength;
 
       text += `- Số lượng: ${bars.toLocaleString()} cây\n`;
-      text += `➔ KHỐI LƯỢNG QUỐC TẾ: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
+      text += `→ KHỐI LƯỢNG QUỐC TẾ: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
       text += `- Tổng chiều dài: ~${Math.round(totalMeters).toLocaleString()} mét`;
     }
   } else {
@@ -1322,7 +1322,7 @@ function copyQteResult() {
       const totalMeters = totalKg / klmQte;
 
       text += `- Khối lượng cân: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
-      text += `➔ KẾT QUẢ: ${fullCoils.toLocaleString()} cuộn + ${Math.round(remainKg)} kg (Chính xác: ${exactCoils.toFixed(2)} cuộn)\n`;
+      text += `→ KẾT QUẢ: ${fullCoils.toLocaleString()} cuộn + ${Math.round(remainKg)} kg (Chính xác: ${exactCoils.toFixed(2)} cuộn)\n`;
       text += `- Tổng chiều dài mét: ~${Math.round(totalMeters).toLocaleString()} mét`;
     } else {
       let coils = Math.max(0, parseInt(inputQtyEl.value, 10) || 0);
@@ -1330,15 +1330,15 @@ function copyQteResult() {
       let totalMeters = totalKg / klmQte;
 
       text += `- Số lượng: ${coils.toLocaleString()} cuộn\n`;
-      text += `➔ KHỐI LƯỢNG: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
+      text += `→ KHỐI LƯỢNG: ${Math.round(totalKg).toLocaleString()} kg (${(totalKg/1000).toFixed(3)} tấn)\n`;
       text += `- Tổng chiều dài mét: ~${Math.round(totalMeters).toLocaleString()} mét`;
     }
   }
 
   navigator.clipboard.writeText(text).then(() => {
-    showToast("Đã sao chép kết quả quy đổi Barem Quốc Tế!");
+    showToast("Đã sao chép kết quả quy đổi Barem Quốc Tế.");
   }).catch(() => {
-    showToast("Không thể sao chép tự động!");
+    showToast("Không thể sao chép tự động.");
   });
 }
 
